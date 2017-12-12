@@ -2,9 +2,9 @@ import sys
 
 from PIL import Image
 from PIL.ImageQt import ImageQt
-from PyQt5 import QtGui
+from PyQt5 import QtGui, QtWidgets
 
-from PyQt5.QtCore import QAbstractListModel, QModelIndex, Qt, QVariant
+from PyQt5.QtCore import QAbstractListModel, QModelIndex, Qt, QVariant, QSize
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QListView, QAbstractItemView, QMainWindow, QVBoxLayout, QPushButton, QFileDialog, \
     QApplication, QWidget, QAction, QMenu, QMessageBox
@@ -134,6 +134,9 @@ class MediaObjectMainWindow(QMainWindow):
         self.setWindowTitle('Media objects')
         self.setMinimumSize(500, 600)
         media_objects_widget = MediaObjectWidget()
+        media_objects_widget.list_view.setViewMode(QtWidgets.QListView.IconMode)
+        media_objects_widget.list_view.setGridSize(QSize(100, 100))
+
         self.setCentralWidget(media_objects_widget)
         menuBar = self.menuBar()
 
