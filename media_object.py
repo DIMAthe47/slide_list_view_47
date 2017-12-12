@@ -63,16 +63,14 @@ class MediaObjectWidget(QWidget):
         layout.addWidget(self.list_view)
         self.setLayout(layout)
 
-
 def default_media_object_extractor(filepath):
     return MediaObject(filepath, None, None)
-
 
 class OnLoadMediaObjectsAction(QAction):
     def __init__(self, parent, title="load"):
         super().__init__(title, parent)
         self.triggered.connect(self.on_load_action)
-        self.list_model = None
+        self.list_view = None
         self.media_object_extractor = default_media_object_extractor
         self.parent = parent
 
@@ -91,34 +89,6 @@ class OnLoadMediaObjectsAction(QAction):
         list_model = MediaObjectListModel(media_objects)
         self.list_view.setModel(list_model)
 
-
-class MediaObjectsMenu(QMenu):
-    def __init__(self, parent, title="media objects"):
-        super().__init__(title, parent)
-        self.load_action = QAction("load", parent)
-        # self.loadAction = QAction("clear", parent)
-        self.addAction(self.load_action)
-        self.load_action.triggered.connect(self.on_load_action)
-        self.list_model = None
-        self.media_object_extractor = default_media_object_extractor
-        self.parent = parent
-
-    def set_media_object_extractor(self, media_object_extractor):
-        self.media_object_extractor = media_object_extractor
-
-    def set_list_view(self, list_view):
-        self.list_view = list_view
-
-    def on_load_action(self):
-        filepathes, _ = QFileDialog.getOpenFileNames(self, "Choose files", "")
-        self.update_media_objects(filepathes)
-
-    def update_media_objects(self, filepathes):
-        media_objects = [self.media_object_extractor(filepath) for filepath in filepathes]
-        list_model = MediaObjectListModel(media_objects)
-        self.list_view.setModel(list_model)
-
-
 class MediaObjectMainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -127,33 +97,16 @@ class MediaObjectMainWindow(QMainWindow):
         layout = QVBoxLayout()
         media_objects_widget = MediaObjectWidget()
         self.setCentralWidget(media_objects_widget)
-
         menuBar = self.menuBar()
         loadMediaObjectsAction = OnLoadMediaObjectsAction(menuBar)
         loadMediaObjectsAction.set_list_view(media_objects_widget.list_view)
         menuBar.addAction(loadMediaObjectsAction)
-
-        # menu = MediaObjectsMenu(menuBar)
-        # menu.set_list_view(media_objects_widget.list_view)
-        # menuBar.addMenu(menu)
-
-        # img_dir = '/home/dimathe47/data/geo_tiny/Segm_RemoteSensing1/cropped'
-        # import os
-        # img_names = os.listdir(img_dir)
-        #
-        # pilimg_text_list = [{"idx": i, "pilimg": Image.open(os.path.join(img_dir, img_name)), "text": img_name} for
-        #                     i, img_name in
-        #                     enumerate(img_names)]
-        # image_list_model = ImageTextListModel(pilimg_text_list)
-        # self.list_view.setModel(image_list_model)
-
 
 def main():
     app = QApplication(sys.argv)
     win = MediaObjectMainWindow()
     win.show()
     sys.exit(app.exec_())
-
 
 if __name__ == '__main__':
     main()
