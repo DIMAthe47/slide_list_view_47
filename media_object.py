@@ -6,7 +6,7 @@ from PIL import Image
 from PIL.ImageQt import ImageQt
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import QAbstractListModel, QModelIndex, Qt, QVariant, QSize, QRectF, QRect
-from PyQt5.QtGui import QPixmap, QPainter, QColor, QBrush
+from PyQt5.QtGui import QPixmap, QPainter, QColor, QBrush, QPen
 from PyQt5.QtWidgets import QListView, QAbstractItemView, QMainWindow, QVBoxLayout, QFileDialog, \
     QApplication, QWidget, QAction, QMessageBox, QActionGroup
 import itertools
@@ -35,19 +35,21 @@ class PixmapWithMaskedTiles(QPixmap):
 
     def mask_on(self):
         painter = QPainter(self)
+        painter.save()
         painter.drawPixmap(self.rect(), self.original_pixmap)
         for i, tile_rect in enumerate(self.tile_rects):
             # print("last tile_rect", tile_rect)
+            pen = QPen(QColor(0, 0, 0, 255))
             brush = QBrush(self.qcolors[i])
-            painter.save()
+            painter.setPen(pen)
             painter.setBrush(brush)
-            painter.drawRect(*tile_rect)
+            painter.drawRect(QRectF(*tile_rect))
             qcolor = self.qcolors[i]
             # painter.drawText(QRect(*tile_rect), Qt.AlignCenter, str(qcolor.alpha()))
             # painter.drawText(QRect(*tile_rect), Qt.AlignBottom, str(i))
-            painter.restore()
-            # painter.fillRect(*tile_rect, self.qcolors[i])
 
+            # painter.fillRect(*tile_rect, self.qcolors[i])
+        painter.restore()
         painter.end()
 
     def mask_off(self):
@@ -82,6 +84,7 @@ class MediaObjectListModel(QAbstractListModel):
                     pixmap = pilimg_or_pixmap
                 w, h = self.icon_size
                 pixmap = pixmap.scaled(w, h)
+                print(pixmap.size())
                 return QVariant(pixmap)
         elif role == Qt.UserRole:
             return QVariant(self.media_objects[index.row()].data)
