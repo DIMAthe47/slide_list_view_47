@@ -18,9 +18,9 @@ class OnLoadMediaObjectsAction(QAction):
         self.list_model = list_model
 
     def on_load_action(self):
-        # filepathes, _ = QFileDialog.getOpenFileNames(self.parent, "Choose files", "")
-        filepathes, _ = QFileDialog.getOpenFileNames(self.parent, "Choose files",
-                                                     "/home/dimathe47/data/geo_tiny/Segm_RemoteSensing1/cropped")
+        filepathes, _ = QFileDialog.getOpenFileNames(self.parent, "Choose files", "")
+        # filepathes, _ = QFileDialog.getOpenFileNames(self.parent, "Choose files",
+        #                                              "/home/dimathe47/data/geo_tiny/Segm_RemoteSensing1/cropped")
         self.update_list_model(filepathes)
 
     def update_list_model(self, filepathes):
