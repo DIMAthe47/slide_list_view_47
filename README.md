@@ -3,6 +3,10 @@
 Simplest pyqt implementation of [ListView](http://doc.qt.io/qt-5/qlistview.html) with flavour of [media object](https://getbootstrap.com/docs/4.0/layout/media-object)
 from bootstrap.
 
+Screenshot of media objects widget:
+
+![screenshot](/media_objects_screen.png)
+
 ### Use
 Object of type [MediaObject](https://github.com/DIMAthe47/media_objects_47/blob/master/media_object.py) contains image, text, data.
 
@@ -29,14 +33,12 @@ to it populated with list of
   ```
   data_consumer(data:any)
   ```
-  
-
 
 ### Features:
 - fixed size icon or icon with proportion of view size
 - [TiledPixmap](https://github.com/DIMAthe47/media_objects_47/blob/master/tiled_pixmap.py) class can be used to slice
   pixmap into tiles with their own colors. These tiles can serve as masks for regions on entire image
 
-Screenshot of media objects widget:
+Screenshot demonstrating proportion-sized icons (0.5 of width and 0.25 of height) and tiled pixmap in chess style:
 
-![screenshot](/media_objects_screen.png)
+![screenshot](/tiled_pixmap_screenshot.png)
