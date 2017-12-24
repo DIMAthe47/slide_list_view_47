@@ -36,7 +36,7 @@ class MediaObjectMainWindow(QMainWindow):
         media_objects_per_view_action.triggered.connect(self.on_media_objects_per_view_action)
 
     def on_media_objects_per_view_action(self):
-        formGroupBox = QGroupBox("icon size or ratio")
+        formGroupBox = QGroupBox("icon size or ratio (int or float)")
         horizontal_layout = QHBoxLayout(formGroupBox)
         icon_size_w = QLineEdit(str(self.media_objects_widget.list_view.icon_max_size_or_ratio[0]))
         icon_size_h = QLineEdit(str(self.media_objects_widget.list_view.icon_max_size_or_ratio[1]))

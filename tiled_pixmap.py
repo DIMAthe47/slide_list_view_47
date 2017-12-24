@@ -1,3 +1,7 @@
+import itertools
+import math
+import random
+
 from PIL.ImageQt import ImageQt
 from PyQt5 import QtGui
 from PyQt5.QtCore import QRectF
@@ -36,3 +40,34 @@ class TiledPixmap(QPixmap):
         painter = QPainter(self)
         painter.drawPixmap(self.rect(), self.original_pixmap)
         painter.end()
+
+
+def chop(length, n_chops):
+    regular_chop_length = math.ceil(length / n_chops)
+    chops = [regular_chop_length * i for i in range(n_chops)]
+    offsets = [min((length - i * regular_chop_length, regular_chop_length)) for i in range(n_chops)]
+    return chops, offsets
+
+
+def repeat_each_n_times(iterable, n):
+    repeated_iter = zip(*[iter(iterable) for i in range(n)])
+    return itertools.chain.from_iterable(repeated_iter)
+
+
+def tile_rect(width, height, columns, rows):
+    x_poses, widths = chop(width, columns)
+    y_poses, heights = chop(height, rows)
+    x_iter = itertools.cycle(x_poses)
+    width_iter = itertools.cycle(widths)
+    y_iter = repeat_each_n_times(y_poses, columns)
+    height_iter = repeat_each_n_times(heights, columns)
+    tiles_rects = list(zip(x_iter, y_iter, width_iter, height_iter))
+    return tiles_rects
+
+
+def chess_positions(columns, rows):
+    return [(i, j) for i in range(rows) for j in range(columns) if (i + j) % 2 != 0]
+
+
+def random_qcolor(alpha):
+    return QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255), alpha)
