@@ -9,10 +9,6 @@ class MediaObjectListModel(QAbstractListModel):
         super().__init__()
         self.media_objects = media_objects
         self.icon_size = icon_size
-        self.img_key__pixmap = {}
-        self.img_key__cache_key = {}
-        # self.key__icon={}
-        self.img_key = "12345"
 
     def rowCount(self, parent=QModelIndex()):
         return len(self.media_objects)
@@ -27,24 +23,21 @@ class MediaObjectListModel(QAbstractListModel):
         elif role == Qt.DecorationRole:
             pilimg_or_pixmap = self.media_objects[index.row()].pilimg_or_pixmap
             w, h = self.icon_size
-
-            # img_key = self.media_objects[index.row()].text + "_{}_{}".format(w, h)
-            pixmap = QPixmapCache.find(self.img_key)
-            print(self.img_key, pixmap)
-            # pixmap=None
+            img_key = self.media_objects[index.row()].text + "_{}_{}".format(w, h)
+            pixmap = QPixmapCache.find(img_key)
+            # print(img_key, pixmap)
             if not pixmap:
                 # print("read")
                 if pilimg_or_pixmap:
                     if callable(pilimg_or_pixmap):
-                        print(self.icon_size)
+                        # print(self.icon_size)
                         pilimg_or_pixmap = pilimg_or_pixmap(self.icon_size)
                     if not isinstance(pilimg_or_pixmap, QPixmap):
                         img = ImageQt(pilimg_or_pixmap)
-                        pixmap = QtGui.QPixmap.fromImage(img)
+                        pixmap = QtGui.QPixmap.fromImage(img).copy()
                     else:
                         pixmap = pilimg_or_pixmap
-                QPixmapCache.insert(self.img_key, pixmap)
-                self.img_key__pixmap[self.img_key] = pixmap
+                    QPixmapCache.insert(img_key, pixmap)
 
             icon_pixmap = QPixmap(w, h)
             painter = QPainter(icon_pixmap)
