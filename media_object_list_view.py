@@ -29,12 +29,12 @@ class MediaObjectListView(QListView):
         view_size = self.viewport().size()
 
         if isinstance(self.icon_max_size_or_ratio[1], float):
-            icon_height = view_size.height() * self.icon_max_size_or_ratio[1] - self.spacing() * 2
+            icon_height = view_size.height() * self.icon_max_size_or_ratio[1] - self.spacing() * 2 - 2
         else:
             icon_height = self.icon_max_size_or_ratio[1]
 
         if isinstance(self.icon_max_size_or_ratio[0], float):
-            icon_width = view_size.width() * self.icon_max_size_or_ratio[0] - self.spacing() * 2
+            icon_width = view_size.width() * self.icon_max_size_or_ratio[0] - self.spacing() * 2 - 2
         else:
             icon_width = self.icon_max_size_or_ratio[0]
 

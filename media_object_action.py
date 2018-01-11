@@ -21,7 +21,8 @@ class OnLoadMediaObjectsAction(QAction):
         filepathes, _ = QFileDialog.getOpenFileNames(self.parent, "Choose files", "")
         # filepathes, _ = QFileDialog.getOpenFileNames(self.parent, "Choose files",
         #                                              "/home/dimathe47/data/geo_tiny/Segm_RemoteSensing1/cropped")
-        self.update_list_model(filepathes)
+        if filepathes and len(filepathes) > 0:
+            self.update_list_model(filepathes)
 
     def update_list_model(self, filepathes):
         media_objects = [self.media_object_extractor(source) for source in filepathes]
