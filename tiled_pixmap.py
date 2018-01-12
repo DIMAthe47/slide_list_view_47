@@ -7,6 +7,8 @@ from PyQt5 import QtGui
 from PyQt5.QtCore import QRectF
 from PyQt5.QtGui import QPixmap, QColor, QPainter, QPen, QBrush
 
+from elapsed_timer import elapsed_timer
+
 
 class TiledPixmap(QPixmap):
     def __init__(self, pilimg_or_path, tile_rects, qcolors: list) -> None:
@@ -23,12 +25,15 @@ class TiledPixmap(QPixmap):
         painter = QPainter(self)
         painter.save()
         painter.drawPixmap(self.rect(), self.original_pixmap)
-        for i, tile_rect in enumerate(self.tile_rects):
-            pen = QPen(QColor(0, 0, 0, 0))
-            brush = QBrush(self.qcolors[i])
-            painter.setPen(pen)
-            painter.setBrush(brush)
-            painter.drawRect(QRectF(*tile_rect))
+        pen = QPen(QColor(0, 0, 0, 0))
+        painter.setPen(pen)
+        with elapsed_timer() as elapsed:
+            for i, tile_rect in enumerate(self.tile_rects):
+                brush = QBrush(self.qcolors[i])
+                painter.setBrush(brush)
+                painter.drawRect(QRectF(*tile_rect))
+            print("rects elapsed:", elapsed())
+
             # qcolor = self.qcolors[i]
             # painter.drawText(QRect(*tile_rect), Qt.AlignCenter, str(qcolor.alpha()))
             # painter.drawText(QRect(*tile_rect), Qt.AlignBottom, str(i))

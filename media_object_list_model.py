@@ -3,6 +3,8 @@ from PyQt5 import QtGui
 from PyQt5.QtCore import QAbstractListModel, QModelIndex, Qt, QVariant, QPoint
 from PyQt5.QtGui import QPixmap, QPainter, QColor, QPixmapCache
 
+from elapsed_timer import elapsed_timer
+
 
 class MediaObjectListModel(QAbstractListModel):
     def __init__(self, media_objects=[], icon_size=None):
@@ -46,6 +48,7 @@ class MediaObjectListModel(QAbstractListModel):
             p = QPoint((w - scaled_pixmap.width()) / 2, (h - scaled_pixmap.height()) / 2)
             painter.drawPixmap(p, scaled_pixmap)
             painter.end()
+
             return QVariant(icon_pixmap)
         elif role == Qt.UserRole:
             return QVariant(self.media_objects[index.row()].data)
