@@ -1,10 +1,13 @@
 from PyQt5 import QtWidgets, QtGui
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QListView, QAbstractItemView
 from media_object_list_model import MediaObjectListModel
 
 
 # Note that MediaObjectListView view doesnt know about MediaObjectListModel
 class MediaObjectListView(QListView):
+    wheelEventSignal = pyqtSignal(QtGui.QWheelEvent)
+
     def __init__(self, parent=None, icon_max_size_or_ratio=(0.2, 0.25),
                  icon_size_changed_callback=None):
         super().__init__(parent)
@@ -16,6 +19,9 @@ class MediaObjectListView(QListView):
         self.icon_max_size_or_ratio = icon_max_size_or_ratio
         self.icon_size_changed_callback = icon_size_changed_callback
         self.update_icon_size()
+        self.setUniformItemSizes(True)
+        self.setWordWrap(True)
+        # self.setWrapping(False)
 
     def update_icon_max_size_or_ratio(self, icon_max_size_or_ratio):
         self.icon_max_size_or_ratio = icon_max_size_or_ratio
@@ -41,3 +47,7 @@ class MediaObjectListView(QListView):
         self.icon_size = (icon_width, icon_height)
         if self.icon_size_changed_callback:
             self.icon_size_changed_callback(self.icon_size)
+
+    def wheelEvent(self, e: QtGui.QWheelEvent) -> None:
+        self.wheelEventSignal.emit(e)
+        super().wheelEvent(e)

@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow, QActionGroup, QGroupBox, QFormLayout, QHBoxLayout, \
-    QLineEdit, QDialogButtonBox, QVBoxLayout, QDialog
+    QLineEdit, QDialogButtonBox, QVBoxLayout, QDialog, QListView
 from media_object import media_object_extractors
 from media_object_action import OnLoadMediaObjectsAction, OnGetSelectedMediaObjectsDataAction
 from media_object_widget import MediaObjectWidget
@@ -9,7 +9,7 @@ class MediaObjectMainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle('Media objects')
-        self.setMinimumSize(500, 600)
+        self.resize(500, 600)
         self.media_objects_widget = MediaObjectWidget()
         self.setCentralWidget(self.media_objects_widget)
 
@@ -34,6 +34,15 @@ class MediaObjectMainWindow(QMainWindow):
 
         media_objects_per_view_action = view_actions_menu.addAction("icon_max_size_or_ratio")
         media_objects_per_view_action.triggered.connect(self.on_media_objects_per_view_action)
+
+        media_objects_per_view_action = view_actions_menu.addAction("change view_mode")
+        media_objects_per_view_action.triggered.connect(self.on_change_view_mode)
+
+    def on_change_view_mode(self):
+        if self.media_objects_widget.list_view.viewMode() == QListView.IconMode:
+            self.media_objects_widget.list_view.setViewMode(QListView.ListMode)
+        else:
+            self.media_objects_widget.list_view.setViewMode(QListView.IconMode)
 
     def on_media_objects_per_view_action(self):
         formGroupBox = QGroupBox("icon size or ratio (int or float)")

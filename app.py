@@ -11,6 +11,7 @@ def main():
     win = MediaObjectMainWindow()
     cache_size_in_kb = 300 * 10 ** 3
     QPixmapCache.setCacheLimit(cache_size_in_kb)
+
     win.show()
 
     default_action = win.load_actions[list(win.load_actions.keys())[2]]
