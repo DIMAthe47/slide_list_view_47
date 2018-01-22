@@ -5,6 +5,11 @@ from PyQt5.QtWidgets import QApplication
 from media_object_main_window import MediaObjectMainWindow
 import os
 
+def excepthook(excType, excValue, tracebackobj):
+    print(excType, excValue, tracebackobj)
+
+
+sys.excepthook = excepthook
 
 def main():
     app = QApplication(sys.argv)
@@ -14,7 +19,7 @@ def main():
 
     win.show()
 
-    default_action = win.load_actions[list(win.load_actions.keys())[2]]
+    default_action = win.load_actions[list(win.load_actions.keys())[0]]
     # filepathes = [
     #                  '/home/dimathe47/data/geo_tiny/Segm_RemoteSensing1/jpg-png/poligon_minsk_1_yandex_z18_train_0_0.jpg',
     #                  '/home/dimathe47/data/geo_tiny/Segm_RemoteSensing1/jpg-png/poligon_minsk_1_yandex_z18_train_0_0.png'] * 4

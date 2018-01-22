@@ -81,7 +81,7 @@ class SlideViewerEditor(QWidget):
         self._slide_tile = value
         start_level, start_rect = None, None
         slide_helper = SlideHelper(value.slide_path)
-        if value.level and value.rect:
+        if value.level is not None and value.rect is not None:
             start_level = value.level
             if isinstance(value.rect, collections.Iterable):
                 start_rect = QRectF(*value.rect)

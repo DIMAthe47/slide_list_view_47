@@ -1,101 +1,82 @@
 import typing
 
+from PIL import Image
 from PIL.ImageQt import ImageQt
 from PyQt5 import QtGui
-from PyQt5.QtCore import QAbstractListModel, QModelIndex, Qt, QVariant, QPoint, QSize, QRectF
-from PyQt5.QtGui import QPixmap, QPainter, QColor, QPixmapCache
-
-from elapsed_timer import elapsed_timer
-from slide_viewer_47.common.slide_tile import SlideTile
+from PyQt5.QtCore import QAbstractListModel, QModelIndex, Qt, QVariant, QPoint, QSize, QRectF, QSizeF
+from PyQt5.QtGui import QPixmap, QPainter, QColor, QPixmapCache, QImage
 
 
-def qrectf_to_rect(qrectf: QRectF):
-    if qrectf:
-        return (int(qrectf.x()), int(qrectf.y()), int(qrectf.width()), int(qrectf.height()))
+def str_display_func(item):
+    return QVariant(str(item))
 
 
+def imagepath_decoration_func(filepath, icon_size: QSize):
+    pilimg: Image.Image = Image.open(filepath)
+    img_key = filepath + "_{}".format(str(icon_size))
+    icon_pixmap = QPixmapCache.find(img_key)
+    if icon_pixmap is None:
+        icon_pixmap = QPixmap(icon_size)
+        painter = QPainter(icon_pixmap)
+        painter.fillRect(icon_pixmap.rect(), painter.background())
+        scaled_icon_image = ImageQt(pilimg).scaled(icon_size, Qt.KeepAspectRatio)
+        p = QPoint((icon_size.width() - scaled_icon_image.width()) / 2,
+                   (icon_size.height() - scaled_icon_image.height()) / 2)
+        painter.drawImage(p, scaled_icon_image)
+        painter.end()
+        QPixmapCache.insert(img_key, icon_pixmap)
 
+    return QVariant(icon_pixmap)
+
+
+def item_func(item):
+    return item
+
+
+def size_hit_func(item):
+    return QVariant(QSize(200, 200))
 
 
 class MediaObjectListModel(QAbstractListModel):
-    def __init__(self, media_objects=[], icon_size=None):
+    def __init__(self, items=[], display_func=str_display_func, decoration_func=None,
+                 edit_func=None, tooltip_func=str_display_func,
+                 size_hint_func=None, user_func=item_func):
         super().__init__()
-        self.media_objects = media_objects
-        self.icon_size = icon_size
+        self.items = items
+        self.display_func = display_func
+        self.decoration_func = decoration_func
+        self.size_func = size_hint_func
+        self.edit_func = edit_func
+
+        self.role_func = {
+            Qt.SizeHintRole: size_hint_func,
+            Qt.DisplayRole: display_func,
+            Qt.EditRole: edit_func,
+            Qt.ToolTipRole: tooltip_func,
+            Qt.DecorationRole: decoration_func,
+            Qt.UserRole: user_func,
+        }
 
     def rowCount(self, parent=QModelIndex()):
-        return len(self.media_objects)
+        return len(self.items)
 
-    def data(self, index, role=Qt.DisplayRole):
-        item = self.media_objects[index.row()]
-        # if role == Qt.SizeHintRole:
-            # w, h = item.data["icon_size"]
-            # size = QSize(w*2, h)
-            # print("SizeHintRole: ", size)
-            # return QVariant()
-        if role == Qt.FontRole:
-            return QVariant()
-        if role == Qt.DisplayRole:
-            item.data["edit_role"] = False
-            if "hide_decoration_role" in item.data:
-                del item.data["hide_decoration_role"]
-            suffix = "\nlevel: {}\nrect: {}".format(item.data["slide_tile"].level,
-                                                         qrectf_to_rect(item.data["slide_tile"].rect))
-            return QVariant(item.text + suffix)
-        elif role == Qt.EditRole:
-            item.data["hide_decoration_role"] = True
-            item.data["edit_role"] = True
-            return QVariant(item.data["slide_tile"])
-        elif role == Qt.ToolTipRole:
-            return QVariant(item.text)
-        elif role == Qt.DecorationRole:
-            # if "hide_decoration_role" in item.data:
-            return QVariant()
-            # w, h = self.icon_size
-            # icon_pixmap = QPixmap(w, h)
-            # painter = QPainter(icon_pixmap)
-            # painter.fillRect(icon_pixmap.rect(), QColor(0, 255, 0))
-            # painter.end()
-            # return QVariant(icon_pixmap)
-            item = item
-            pilimg_or_pixmap = item.pilimg_or_pixmap
-            w, h = self.icon_size
-            img_key = item.text + "_{}_{}".format(w, h)
-            pixmap = QPixmapCache.find(img_key)
-            pixmap = None
-            # print(img_key, pixmap)
-            if not pixmap:
-                # print("read")
-                if pilimg_or_pixmap:
-                    if callable(pilimg_or_pixmap):
-                        # print(self.icon_size)
-                        # pilimg_or_pixmap = pilimg_or_pixmap(self.icon_size)
-                        pilimg_or_pixmap = pilimg_or_pixmap(item)
-                    if not isinstance(pilimg_or_pixmap, QPixmap):
-                        img = ImageQt(pilimg_or_pixmap)
-                        pixmap = QtGui.QPixmap.fromImage(img).copy()
-                    else:
-                        pixmap = pilimg_or_pixmap
-                    QPixmapCache.insert(img_key, pixmap)
-
-            icon_pixmap = QPixmap(w, h)
-            painter = QPainter(icon_pixmap)
-            painter.fillRect(icon_pixmap.rect(), painter.background())
-            scaled_pixmap = pixmap.scaled(w, h, Qt.KeepAspectRatio)
-            p = QPoint((w - scaled_pixmap.width()) / 2, (h - scaled_pixmap.height()) / 2)
-            painter.drawPixmap(p, scaled_pixmap)
-            painter.end()
-
-            return QVariant(icon_pixmap)
-        elif role == Qt.UserRole:
-            return QVariant(item.data)
-        elif role == Qt.UserRole + 1:
-            return QVariant(item)
-        else:
-            return QVariant()
+    def data(self, index: QModelIndex, role=Qt.DisplayRole):
+        item = self.items[index.row()]
+        if role in self.role_func:
+            custom_handler = self.role_func[role]
+            if custom_handler:
+                if role == Qt.DecorationRole:
+                    icon_size = self.data(index, Qt.SizeHintRole)
+                    return custom_handler(item, icon_size.value())
+                else:
+                    return custom_handler(item)
+        return QVariant()
 
     def flags(self, index):
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
+        if self.edit_func:
+            return Qt.ItemIsSelectable | Qt.ItemIsEditable | Qt.ItemIsEnabled
+        else:
+            return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
     def on_icon_size_changed(self, icon_size):
         self.icon_size = icon_size
@@ -103,13 +84,15 @@ class MediaObjectListModel(QAbstractListModel):
         self.endResetModel()
         # self.dataChanged.emit(self.index(0), self.index(0))
 
-    def update_media_objects(self, media_objects):
+    def update_media_objects(self, items):
         self.beginResetModel()
-        QPixmapCache.clear()
-        self.media_objects = media_objects
+        self.items = items
         self.endResetModel()
 
-    def setData(self, index: QModelIndex, value: typing.Any, role: int = ...) -> bool:
-        item = self.media_objects[index.row()]
-        item.data["slide_tile"] = value
-        return True
+    def setData(self, index: QModelIndex, value: typing.Any, role=Qt.DisplayRole) -> bool:
+        item = self.items[index.row()]
+        if role == Qt.UserRole:
+            self.items[index.row()] = value
+            self.dataChanged(index, index)
+            return True
+        return False

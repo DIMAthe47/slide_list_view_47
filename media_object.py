@@ -13,7 +13,8 @@ class MediaObject(object):
 
 
 def default_media_object_extractor(source):
-    return MediaObject(source, None, "default data")
+    return source
+    # return MediaObject(source, None, "default data")
 
 
 def imagefilepath_to_media_object(filepath):
@@ -44,7 +45,7 @@ def default_data_consumer(data):
 
 media_object_extractors = {
     "filepath": default_media_object_extractor,
-    "filepath+pilimg": imagefilepath_to_media_object,
-    "filepath+pixmap": imagefilepath_to_media_object_with_pixmap,
-    "filepath+masked_tiles_pixmap": imagefilepath_to_media_object_with_masked_tiles,
+    # "filepath+pilimg": imagefilepath_to_media_object,
+    # "filepath+pixmap": imagefilepath_to_media_object_with_pixmap,
+    # "filepath+masked_tiles_pixmap": imagefilepath_to_media_object_with_masked_tiles,
 }
