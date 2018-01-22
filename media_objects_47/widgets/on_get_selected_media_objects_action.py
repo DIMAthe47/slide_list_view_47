@@ -4,7 +4,7 @@ from media_objects_47.model.media_object_list_model import MediaObjectListModel
 
 
 class OnGetSelectedMediaObjectsDataAction(QAction):
-    def __init__(self, parent, title="get_items"):
+    def __init__(self, parent, title="get_selected_items"):
         super().__init__(title, parent)
         self.triggered.connect(self.on_get_data_action)
         self.list_model = None

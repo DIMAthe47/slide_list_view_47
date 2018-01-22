@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import QAction, QFileDialog
 
 
-
 class OnLoadMediaObjectsAction(QAction):
     def __init__(self, title="load", parent=None):
         super().__init__(title, parent)
