@@ -10,6 +10,7 @@ from PyQt5.QtGui import QPixmap, QColor, QPainter, QPen, QBrush
 from elapsed_timer import elapsed_timer
 
 
+# Deprecated. Will be removed. It cant render precise grid with small steps
 class TiledPixmap(QPixmap):
     def __init__(self, pilimg_or_path, tile_rects, qcolors: list) -> None:
         img = ImageQt(pilimg_or_path)

@@ -1,10 +1,10 @@
 from PyQt5.QtCore import Qt, QSize, QVariant, QSizeF
 from PyQt5.QtWidgets import QMainWindow, QActionGroup, QGroupBox, QFormLayout, QHBoxLayout, \
-    QLineEdit, QDialogButtonBox, QVBoxLayout, QDialog, QListView
+    QLineEdit, QDialogButtonBox, QVBoxLayout, QDialog, QListView, QAction
 
-from media_objects_47.model.media_object import media_object_extractors
 from media_objects_47.model.media_object_list_model import imagepath_decoration_func, MediaObjectListModel
-from media_objects_47.widgets.media_object_action import OnLoadMediaObjectsAction, OnGetSelectedMediaObjectsDataAction
+from media_objects_47.widgets.on_load_media_objects_action import OnLoadMediaObjectsAction
+from media_objects_47.widgets.on_get_selected_media_objects_action import OnGetSelectedMediaObjectsDataAction
 from media_objects_47.widgets.media_object_widget import MediaObjectWidget
 
 
@@ -17,24 +17,18 @@ class MediaObjectMainWindow(QMainWindow):
         self.setCentralWidget(self.media_objects_widget)
 
         menu_bar = self.menuBar()
-        load_action_menu = menu_bar.addMenu("load")
-        load_action_group = QActionGroup(load_action_menu)
-        self.load_actions = {}
-        for media_object_extractor_title in media_object_extractors:
-            action = OnLoadMediaObjectsAction(load_action_menu, media_object_extractor_title)
-            action.setCheckable(True)
-            action.set_list_model(self.media_objects_widget.list_model)
-            action.set_media_object_extractor(media_object_extractors[media_object_extractor_title])
-            load_action_group.addAction(action)
-            load_action_menu.addAction(action)
-            self.load_actions[media_object_extractor_title] = action
+
+        load_action_menu = menu_bar.addMenu("load_actions")
+        load_action = OnLoadMediaObjectsAction("load", menu_bar)
+        load_action.set_list_model(self.media_objects_widget.list_model)
+        load_action_menu.addAction(load_action)
+        menu_bar.addMenu(load_action_menu)
 
         get_media_objects_data_action = OnGetSelectedMediaObjectsDataAction(menu_bar)
         get_media_objects_data_action.set_list_view(self.media_objects_widget.list_view)
         menu_bar.addAction(get_media_objects_data_action)
 
         view_actions_menu = menu_bar.addMenu("view_actions")
-
         icon_max_size_or_ratio_action = view_actions_menu.addAction("icon_max_size_or_ratio")
         icon_max_size_or_ratio_action.triggered.connect(self.on_icon_max_size_or_ratio_action)
 

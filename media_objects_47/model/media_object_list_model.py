@@ -10,7 +10,6 @@ from PyQt5.QtGui import QPixmap, QPainter, QColor, QPixmapCache, QImage
 def str_display_func(item):
     return QVariant(str(item))
 
-
 def imagepath_decoration_func(filepath, icon_size: QSize):
     pilimg: Image.Image = Image.open(filepath)
     img_key = filepath + "_{}".format(str(icon_size))
@@ -28,9 +27,8 @@ def imagepath_decoration_func(filepath, icon_size: QSize):
 
     return QVariant(icon_pixmap)
 
-
 def item_func(item):
-    return item
+    return QVariant(item)
 
 
 def decoration_size_hint_func(size_else_ratio=True):
@@ -38,11 +36,13 @@ def decoration_size_hint_func(size_else_ratio=True):
 
 
 class MediaObjectListModel(QAbstractListModel):
+    ItemRole = Qt.UserRole
     DecorationSizeOrRatioRole = Qt.UserRole + 1
+
 
     def __init__(self, items=[], display_func=str_display_func, decoration_func=None,
                  edit_func=None, tooltip_func=str_display_func,
-                 size_hint_func=None, user_func=item_func, decoration_size_hint_func=decoration_size_hint_func):
+                 size_hint_func=None, item_func=item_func, decoration_size_hint_func=decoration_size_hint_func):
         super().__init__()
         self.items = items
 
@@ -52,7 +52,7 @@ class MediaObjectListModel(QAbstractListModel):
             Qt.EditRole: edit_func,
             Qt.ToolTipRole: tooltip_func,
             Qt.DecorationRole: decoration_func,
-            Qt.UserRole: user_func,
+            MediaObjectListModel.ItemRole: item_func,
             MediaObjectListModel.DecorationSizeOrRatioRole: decoration_size_hint_func,
         }
 
@@ -83,12 +83,6 @@ class MediaObjectListModel(QAbstractListModel):
         else:
             return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
-    def on_icon_size_changed(self, icon_size):
-        self.icon_size = icon_size
-        self.beginResetModel()
-        self.endResetModel()
-        # self.dataChanged.emit(self.index(0), self.index(0))
-
     def update_media_objects(self, items):
         self.beginResetModel()
         self.items = items
@@ -96,7 +90,7 @@ class MediaObjectListModel(QAbstractListModel):
 
     def setData(self, index: QModelIndex, value: typing.Any, role=Qt.DisplayRole) -> bool:
         item = self.items[index.row()]
-        if role == Qt.UserRole:
+        if role == MediaObjectListModel.ItemRole:
             self.items[index.row()] = value
             self.dataChanged(index, index)
             return True

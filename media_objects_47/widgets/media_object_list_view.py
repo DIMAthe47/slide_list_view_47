@@ -3,7 +3,6 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QListView, QAbstractItemView
 
 
-# Note that MediaObjectListView view doesnt know about MediaObjectListModel
 class MediaObjectListView(QListView):
     wheelEventSignal = pyqtSignal(QtGui.QWheelEvent)
 
