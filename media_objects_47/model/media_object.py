@@ -2,7 +2,7 @@ from PIL import Image
 from PyQt5.QtGui import QPixmap, QColor
 from PyQt5.QtWidgets import QMessageBox
 
-from tiled_pixmap import TiledPixmap, tile_rect, chess_positions
+from media_objects_47.model.tiled_pixmap import chess_positions, tile_rect, TiledPixmap
 
 
 class MediaObject(object):
@@ -14,7 +14,6 @@ class MediaObject(object):
 
 def default_media_object_extractor(source):
     return source
-    # return MediaObject(source, None, "default data")
 
 
 def imagefilepath_to_media_object(filepath):
@@ -45,6 +44,7 @@ def default_data_consumer(data):
 
 media_object_extractors = {
     "filepath": default_media_object_extractor,
+    "filepath+decoration": default_media_object_extractor,
     # "filepath+pilimg": imagefilepath_to_media_object,
     # "filepath+pixmap": imagefilepath_to_media_object_with_pixmap,
     # "filepath+masked_tiles_pixmap": imagefilepath_to_media_object_with_masked_tiles,

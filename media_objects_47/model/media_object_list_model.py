@@ -33,20 +33,18 @@ def item_func(item):
     return item
 
 
-def size_hit_func(item):
-    return QVariant(QSize(200, 200))
+def decoration_size_hint_func(size_else_ratio=True):
+    return QVariant((200, 200))
 
 
 class MediaObjectListModel(QAbstractListModel):
+    DecorationSizeOrRatioRole = Qt.UserRole + 1
+
     def __init__(self, items=[], display_func=str_display_func, decoration_func=None,
                  edit_func=None, tooltip_func=str_display_func,
-                 size_hint_func=None, user_func=item_func):
+                 size_hint_func=None, user_func=item_func, decoration_size_hint_func=decoration_size_hint_func):
         super().__init__()
         self.items = items
-        self.display_func = display_func
-        self.decoration_func = decoration_func
-        self.size_func = size_hint_func
-        self.edit_func = edit_func
 
         self.role_func = {
             Qt.SizeHintRole: size_hint_func,
@@ -55,7 +53,11 @@ class MediaObjectListModel(QAbstractListModel):
             Qt.ToolTipRole: tooltip_func,
             Qt.DecorationRole: decoration_func,
             Qt.UserRole: user_func,
+            MediaObjectListModel.DecorationSizeOrRatioRole: decoration_size_hint_func,
         }
+
+    def update_role_func(self, role, func):
+        self.role_func[role] = func
 
     def rowCount(self, parent=QModelIndex()):
         return len(self.items)
@@ -66,14 +68,17 @@ class MediaObjectListModel(QAbstractListModel):
             custom_handler = self.role_func[role]
             if custom_handler:
                 if role == Qt.DecorationRole:
-                    icon_size = self.data(index, Qt.SizeHintRole)
-                    return custom_handler(item, icon_size.value())
+                    icon_size = self.data(index, MediaObjectListModel.DecorationSizeOrRatioRole)
+                    return custom_handler(item, QSize(*icon_size.value()))
+                elif role == MediaObjectListModel.DecorationSizeOrRatioRole:
+                    icon_size = custom_handler()
+                    return QVariant(icon_size)
                 else:
                     return custom_handler(item)
         return QVariant()
 
     def flags(self, index):
-        if self.edit_func:
+        if self.role_func[Qt.EditRole] is not None:
             return Qt.ItemIsSelectable | Qt.ItemIsEditable | Qt.ItemIsEnabled
         else:
             return Qt.ItemIsSelectable | Qt.ItemIsEnabled

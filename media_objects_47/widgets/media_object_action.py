@@ -1,6 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QAction, QFileDialog
-from media_object import default_media_object_extractor, default_data_consumer
+
+from media_objects_47.model.media_object import default_media_object_extractor, default_data_consumer
 
 
 class OnLoadMediaObjectsAction(QAction):
@@ -25,8 +26,9 @@ class OnLoadMediaObjectsAction(QAction):
             self.update_list_model(filepathes)
 
     def update_list_model(self, filepathes):
-        media_objects = [self.media_object_extractor(source) for source in filepathes]
-        self.list_model.update_media_objects(media_objects)
+        # media_objects = [self.media_object_extractor(source) for source in filepathes]
+        # self.list_model.update_media_objects(media_objects)
+        self.list_model.update_media_objects(filepathes)
 
 
 class OnGetSelectedMediaObjectsDataAction(QAction):

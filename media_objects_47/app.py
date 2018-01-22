@@ -2,8 +2,10 @@ import sys
 
 from PyQt5.QtGui import QPixmapCache
 from PyQt5.QtWidgets import QApplication
-from media_object_main_window import MediaObjectMainWindow
 import os
+
+from media_objects_47.widgets.media_object_main_window import MediaObjectMainWindow
+
 
 def excepthook(excType, excValue, tracebackobj):
     print(excType, excValue, tracebackobj)
