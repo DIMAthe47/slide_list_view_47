@@ -6,11 +6,15 @@ from PyQt5.QtCore import QAbstractListModel, QModelIndex, Qt, QVariant, QPoint, 
 from PyQt5.QtGui import QPixmap, QPainter, QColor, QPixmapCache
 
 from elapsed_timer import elapsed_timer
+from slide_viewer_47.common.slide_tile import SlideTile
 
 
 def qrectf_to_rect(qrectf: QRectF):
     if qrectf:
         return (int(qrectf.x()), int(qrectf.y()), int(qrectf.width()), int(qrectf.height()))
+
+
+
 
 
 class MediaObjectListModel(QAbstractListModel):
@@ -35,7 +39,7 @@ class MediaObjectListModel(QAbstractListModel):
             item.data["edit_role"] = False
             if "hide_decoration_role" in item.data:
                 del item.data["hide_decoration_role"]
-            suffix = "\ndownsample: {}\nrect: {}".format(item.data["slide_tile"].downsample,
+            suffix = "\nlevel: {}\nrect: {}".format(item.data["slide_tile"].level,
                                                          qrectf_to_rect(item.data["slide_tile"].rect))
             return QVariant(item.text + suffix)
         elif role == Qt.EditRole:

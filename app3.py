@@ -1,24 +1,21 @@
+import collections
 import sys
 import typing
 from functools import lru_cache
 
 import openslide
 from PIL.ImageQt import ImageQt
-from PyQt5 import QtCore
 
-from PyQt5.QtGui import QPixmapCache, QPainter, QColor, QRegion, QBrush, QPixmap
-from PyQt5.QtCore import pyqtSignal, Qt, QTimer, QVariant, QMetaType, QRectF, QRect, QPoint, QPointF, QSizeF, QSize
-from PyQt5.QtWidgets import QApplication, QItemDelegate, QStyleOptionViewItem, QWidget, QItemEditorCreatorBase, \
-    QItemEditorFactory, QAbstractItemView, QVBoxLayout, QLabel, QStyle
+from PyQt5.QtGui import QPixmapCache, QPainter
+from PyQt5.QtCore import Qt, QRectF, QRect, QPoint, QSize
+from PyQt5.QtWidgets import QAbstractItemView, QVBoxLayout, QGraphicsScene
 
 from media_object import MediaObject
-from media_object_list_model import MediaObjectListModel
-from media_object_list_view import MediaObjectListView
 from media_object_main_window import MediaObjectMainWindow
-import os
-
-from slide_tile import SlideTile
-from slide_viewer import SlideViewer
+from slide_viewer_47.common.slide_tile import SlideTile
+from slide_viewer_47.common.utils import SlideHelper
+from slide_viewer_47.graphics.slide_graphics_group import SlideGraphicsGroup
+from slide_viewer_47.widgets.slide_viewer import SlideViewer, build_screenshot_image
 
 
 def excepthook(excType, excValue, tracebackobj):
@@ -28,13 +25,10 @@ def excepthook(excType, excValue, tracebackobj):
 sys.excepthook = excepthook
 
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtCore import QVariant, pyqtProperty
+from PyQt5.QtCore import pyqtProperty
 
-from PyQt5.QtWidgets import QItemDelegate, QStyleOptionViewItem, QWidget, QApplication, QStyledItemDelegate, \
-    QItemEditorCreatorBase, QTextEdit
-
-from slide_tile import SlideTile
-from slide_viewer import SlideViewer
+from PyQt5.QtWidgets import QStyleOptionViewItem, QWidget, QApplication, QStyledItemDelegate, \
+    QItemEditorCreatorBase
 
 
 def qrectf_to_rect(qrectf: QRectF):
@@ -71,21 +65,31 @@ class SlideViewerEditorCreator(QItemEditorCreatorBase):
 
 class SlideViewerEditor(QWidget):
 
+    # def slide_screenshot_image_painter(painter: QPainter, image_size, item: SlideTile):
+
     @pyqtProperty(SlideTile, user=True)
     def slide_tile(self) -> SlideTile:
-        slide_tile = SlideTile(self._slide_tile.slide_path, self.slide_viewer.get_current_level_downsample(),
+        # downsample = self.slide_viewer.slide_helper.get_downsample_for_level(self.slide_viewer.current_level)
+        # level = slide_helper.get_best_level_for_downsample(downsample)
+        slide_tile = SlideTile(self._slide_tile.slide_path, self.slide_viewer.current_level,
                                self.slide_viewer.get_current_view_scene_rect())
+        print("from viewer:", self.slide_viewer.current_level, self.slide_viewer.get_current_view_scene_rect())
         return slide_tile
 
     @slide_tile.setter
-    def slide_tile(self, value):
+    def slide_tile(self, value: SlideTile):
         self._slide_tile = value
-        self.slide_viewer.load_slide(value.slide_path)
-        # self.update()
-        self.slide_viewer.update_from_rect_and_downsample(self._slide_tile.rect, self._slide_tile.downsample)
-        # print(self.parent(), self.parent().size())
-        # print(self.parent().parent(), self.parent().parent().size())
-        # self.setGeometry(0, 0, 100, 100)
+        start_level, start_rect = None, None
+        slide_helper = SlideHelper(value.slide_path)
+        if value.level and value.rect:
+            start_level = value.level
+            if isinstance(value.rect, collections.Iterable):
+                start_rect = QRectF(*value.rect)
+            else:
+                start_rect = value.rect
+
+        print("to viewer:", start_level, start_rect)
+        self.slide_viewer.load_slide(value.slide_path, start_level, start_rect)
 
     def __init__(self, parent: QWidget) -> None:
         super().__init__(parent)
@@ -96,15 +100,13 @@ class SlideViewerEditor(QWidget):
         # layout.addWidget(QTextEdit("123123"))
         layout.addWidget(self.slide_viewer)
         self.setLayout(layout)
-        # self.parent().updateGeometry()
-        # self.parent().update()
 
 
 class ItemDelegate(QStyledItemDelegate):
 
     def __init__(self, parent: typing.Optional[QtCore.QObject] = None) -> None:
         super().__init__(parent)
-        self.custom_decoration_size_or_ratio = (200, 200)
+        self.custom_decoration_size_or_ratio = (300, 300)
         # self.custom_decoration_size_or_ratio = (0.25, 0.5)
 
     def calculate_expanded_dim(self, dim, expand):
@@ -135,6 +137,7 @@ class ItemDelegate(QStyledItemDelegate):
         w_expand, h_expand = self.custom_decoration_size_or_ratio
         if option.decorationPosition == QStyleOptionViewItem.Left:
             w = self.calculate_size(size.width(), w_expand)
+            h = self.calculate_size(size.height(), h_expand)
         elif option.decorationPosition == QStyleOptionViewItem.Top:
             h = self.calculate_size(size.height(), h_expand)
         return QSize(w, h)
@@ -145,28 +148,26 @@ class ItemDelegate(QStyledItemDelegate):
         # w, h = self.calculate_item_size(size, option, 1)
         qsize = size + self.calculate_custom_decoration_size(size, option)
         w, h = qsize.width(), qsize.height()
-        print("======sizeHint=====")
-        print("option.rect: ", option.rect)
-        print("new size: ", w, h)
-        print("====================")
+        # print("======sizeHint=====")
+        # print("option.rect: ", option.rect)
+        # print("new size: ", w, h)
+        # print("====================")
         return qsize
 
     def paint(self, painter: QtGui.QPainter, option: 'QStyleOptionViewItem', index: QtCore.QModelIndex) -> None:
-        print("option.rect: ", option.rect)
+        # print("option.rect: ", option.rect)
+        # pilimg_or_pixmap = item.pilimg_or_pixmap
+        # pilimg = pilimg_or_pixmap(item)
+        # img = ImageQt(pilimg)
+        # pixmap = QtGui.QPixmap.fromImage(img).copy()
 
-        item = index.data(Qt.UserRole + 1)
-        pilimg_or_pixmap = item.pilimg_or_pixmap
-        pilimg = pilimg_or_pixmap(item)
-        img = ImageQt(pilimg)
-        pixmap = QtGui.QPixmap.fromImage(img).copy()
-        painter.fillRect(option.rect, painter.background())
         # w, h = item.data["icon_size"]
         # qsize = index.data(Qt.SizeHintRole)
         # qsize = self.sizeHint(option, index)
         qsize = option.rect.size()
 
         w, h = qsize.width(), qsize.height()
-        print("w,h: ", w, h)
+        # print("w,h: ", w, h)
 
         custom_decoration_size = self.calculate_custom_decoration_size(qsize, option)
         if option.decorationPosition == QStyleOptionViewItem.Left:
@@ -183,29 +184,51 @@ class ItemDelegate(QStyledItemDelegate):
 
         w, h = custom_decoration_size.width(), custom_decoration_size.height()
 
+        scene = QGraphicsScene()
+        scene.clear()
+        item = index.data(Qt.UserRole + 1)
+        slide_tile: SlideTile = item.data["slide_tile"]
+        slide_graphics = SlideGraphicsGroup(slide_tile.slide_path)
+        scene.addItem(slide_graphics)
+        level = slide_tile.level
+        rect = slide_tile.rect
+        slide_helper = SlideHelper(slide_tile.slide_path)
+        if level == None:
+            level = slide_helper.get_max_level()
+            rect = QRectF(0, 0, *slide_helper.get_level_size(level))
+        else:
+            print("stop here")
+        slide_graphics.update_visible_level(level)
+        scene.setSceneRect(slide_helper.get_rect_for_level(level))
+
+        image = build_screenshot_image(scene, QSize(w, h), rect)
+        pixmap = QtGui.QPixmap.fromImage(image)
+        # pixmap.save("img.jpg")
+
+        painter.fillRect(option.rect, painter.background())
+        painter.drawPixmap(option.rect.topLeft(), pixmap)
+
         # icon_pixmap = QPixmap(w, h)
         # painter.fillRect(icon_pixmap.rect(), painter.background())
         # scaled_pixmap = pixmap.scaled(w, h, Qt.KeepAspectRatio)
-        scaled_pixmap = pixmap.scaled(w, h, Qt.IgnoreAspectRatio)
+        # scaled_pixmap = pixmap.scaled(w, h, Qt.IgnoreAspectRatio)
         # p = QPoint((w - scaled_pixmap.width()) / 2, (h - scaled_pixmap.height()) / 2)
         # painter.drawPixmap(p, scaled_pixmap)
-        painter.drawPixmap(option.rect.topLeft(), scaled_pixmap)
+        # painter.drawPixmap(option.rect.topLeft(), scaled_pixmap)
 
-        # option.rect = option.rect.translated(dx, dy)
         option.rect = option.rect.translated(dx, dy)
-
         option.rect.setSize(QSize(nw, ny))
-        print("rect:", option.rect)
+        # print("rect:", option.rect)
         super().paint(painter, option, index)
 
     def createEditor(self, parent: QWidget, option: QStyleOptionViewItem, index: QtCore.QModelIndex) -> QWidget:
         # option.decorationPosition = QStyleOptionViewItem.Right
         # option.decorationSize = QSize(270, 200)
         # return super().createEditor(parent, option, index)
-        print(option.displayAlignment)
-        print(option.viewItemPosition)
-        print(option.decorationAlignment)
-        print(option.decorationPosition)
+        # print(option.displayAlignment)
+        # print(option.viewItemPosition)
+        # print(option.decorationAlignment)
+        # print(option.decorationPosition)
         slide_viewer_editor = SlideViewerEditor(parent)
         slide_viewer_editor.setGeometry(option.rect)
         slide_viewer_editor.setContentsMargins(0, 0, 0, 0)
@@ -229,21 +252,22 @@ def main():
 
     filepathes = [
         r'C:\Users\DIMA\PycharmProjects\slide_cbir_47\downloads\images\19403.svs',
-        r'C:\Users\DIMA\Downloads\11096.svs'
+        # r'C:\Users\DIMA\Downloads\11096.svs'
     ]
 
     def img_func(item):
         slide_tile = item.data["slide_tile"]
 
-        downsample = item.data["slide_tile"].downsample
+        # downsample = item.data["slide_tile"].downsample
+        level = item.data["slide_tile"].level
         qrect = item.data["slide_tile"].rect
-        if downsample and qrect:
-            # size = (rect[2] - rect[0], rect[3] - rect[1])
-            qrect_0_level = QRect(QPoint(qrect.topLeft().toPoint()) * downsample, qrect.size().toSize())
-            rect_0_level = qrectf_to_rect(qrect_0_level)
-            tile = read_tile(slide_tile.slide_path, rect_0_level[0:2], rect_0_level[2:4], downsample)
-        else:
-            tile = read_thumbnail(slide_tile.slide_path, (300, 300))
+        # if level and qrect:
+        # size = (rect[2] - rect[0], rect[3] - rect[1])
+        # qrect_0_level = QRect(QPoint(qrect.topLeft().toPoint()) * downsample, qrect.size().toSize())
+        # rect_0_level = qrectf_to_rect(qrect_0_level)
+        # tile = read_tile(slide_tile.slide_path, rect_0_level[0:2], rect_0_level[2:4], downsample)
+        # else:
+        tile = read_thumbnail(slide_tile.slide_path, (300, 300))
         return tile
 
     slide_tiles = [
@@ -261,10 +285,10 @@ def main():
 
     win.media_objects_widget.list_view.setMouseTracking(True)
 
-    def f1(e):
-        print(e)
+    # def f1(e):
+    #     print(e)
 
-    win.media_objects_widget.list_view.wheelEventSignal.connect(f1)
+    # win.media_objects_widget.list_view.wheelEventSignal.connect(f1)
 
     # win.media_objects_widget.list_view.viewOptions().decorationPosition = QStyleOptionViewItem.Right
     # win.media_objects_widget.list_view.setStyle(win.media_objects_widget.list_view.viewOptions())

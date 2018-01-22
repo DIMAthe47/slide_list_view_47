@@ -9,7 +9,7 @@ class MediaObjectMainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle('Media objects')
-        self.resize(500, 600)
+        self.resize(1500, 600)
         self.media_objects_widget = MediaObjectWidget()
         self.setCentralWidget(self.media_objects_widget)
 

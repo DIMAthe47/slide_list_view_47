@@ -1,13 +1,12 @@
 import sys
 from PyQt5 import QtCore
 
-from PyQt5.QtGui import QPixmapCache, QPainter, QColor, QRegion
-from PyQt5.QtCore import pyqtSignal, Qt, QTimer, QVariant
+from PyQt5.QtGui import QPixmapCache, QPainter
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QItemDelegate, QStyleOptionViewItem, QWidget
 from media_object_main_window import MediaObjectMainWindow
-import os
 
-from slide_viewer import SlideViewer
+from slide_viewer_47.widgets import SlideViewer
 
 
 class SlideViewerDelegate(QItemDelegate):
