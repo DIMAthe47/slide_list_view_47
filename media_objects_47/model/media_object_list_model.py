@@ -19,14 +19,16 @@ def imagepath_decoration_func(filepath, icon_size: QSize):
         # pilimg: Image.Image = Image.open(filepath)
         with openslide.open_slide(filepath) as slide:
             pilimg = slide.get_thumbnail((icon_size.width(), icon_size.height()))
-            icon_pixmap = QPixmap(icon_size)
-            painter = QPainter(icon_pixmap)
-            painter.fillRect(icon_pixmap.rect(), painter.background())
-            scaled_icon_image = ImageQt(pilimg).scaled(icon_size, Qt.KeepAspectRatio)
+            icon_image = QImage(icon_size, QImage.Format_RGB888)
+            painter = QPainter(icon_image)
+            painter.fillRect(icon_image.rect(), painter.background())
+            img = ImageQt(pilimg)
+            scaled_icon_image = img.scaled(icon_size, Qt.KeepAspectRatio)
             p = QPoint((icon_size.width() - scaled_icon_image.width()) / 2,
                        (icon_size.height() - scaled_icon_image.height()) / 2)
             painter.drawImage(p, scaled_icon_image)
             painter.end()
+            icon_pixmap = QPixmap.fromImage(icon_image)
             QPixmapCache.insert(img_key, icon_pixmap)
 
     return QVariant(icon_pixmap)
