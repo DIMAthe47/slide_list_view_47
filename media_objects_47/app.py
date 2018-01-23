@@ -24,7 +24,8 @@ def main():
     #                  '/home/dimathe47/data/geo_tiny/Segm_RemoteSensing1/jpg-png/poligon_minsk_1_yandex_z18_train_0_0.jpg',
     #                  '/home/dimathe47/data/geo_tiny/Segm_RemoteSensing1/jpg-png/poligon_minsk_1_yandex_z18_train_0_0.png'] * 4
     # dirpath = '/home/dimathe47/Downloads/Mountains'
-    dirpath = r'C:\Users\DIMA\Google Диск\Pictures\Mountains'
+    # dirpath = r'C:\Users\DIMA\Google Диск\Pictures\Mountains'
+    dirpath = r'C:\Users\DIMA\PycharmProjects\slide_cbir_47\downloads\images'
     filepathes = [os.path.join(dirpath, filename) for filename in os.listdir(dirpath)]
 
     win.media_objects_widget.list_model.update_media_objects(filepathes)

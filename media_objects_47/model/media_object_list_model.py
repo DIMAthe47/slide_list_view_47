@@ -5,40 +5,45 @@ from PIL.ImageQt import ImageQt
 from PyQt5 import QtGui
 from PyQt5.QtCore import QAbstractListModel, QModelIndex, Qt, QVariant, QPoint, QSize, QRectF, QSizeF
 from PyQt5.QtGui import QPixmap, QPainter, QColor, QPixmapCache, QImage
+import openslide
 
 
 def str_display_func(item):
     return QVariant(str(item))
 
+
 def imagepath_decoration_func(filepath, icon_size: QSize):
-    pilimg: Image.Image = Image.open(filepath)
     img_key = filepath + "_{}".format(str(icon_size))
     icon_pixmap = QPixmapCache.find(img_key)
     if icon_pixmap is None:
-        icon_pixmap = QPixmap(icon_size)
-        painter = QPainter(icon_pixmap)
-        painter.fillRect(icon_pixmap.rect(), painter.background())
-        scaled_icon_image = ImageQt(pilimg).scaled(icon_size, Qt.KeepAspectRatio)
-        p = QPoint((icon_size.width() - scaled_icon_image.width()) / 2,
-                   (icon_size.height() - scaled_icon_image.height()) / 2)
-        painter.drawImage(p, scaled_icon_image)
-        painter.end()
-        QPixmapCache.insert(img_key, icon_pixmap)
+        # pilimg: Image.Image = Image.open(filepath)
+        with openslide.open_slide(filepath) as slide:
+            pilimg = slide.get_thumbnail((icon_size.width(), icon_size.height()))
+            icon_pixmap = QPixmap(icon_size)
+            painter = QPainter(icon_pixmap)
+            painter.fillRect(icon_pixmap.rect(), painter.background())
+            scaled_icon_image = ImageQt(pilimg).scaled(icon_size, Qt.KeepAspectRatio)
+            p = QPoint((icon_size.width() - scaled_icon_image.width()) / 2,
+                       (icon_size.height() - scaled_icon_image.height()) / 2)
+            painter.drawImage(p, scaled_icon_image)
+            painter.end()
+            QPixmapCache.insert(img_key, icon_pixmap)
 
     return QVariant(icon_pixmap)
+
 
 def item_func(item):
     return QVariant(item)
 
 
 def decoration_size_hint_func(size_else_ratio=True):
-    return QVariant((200, 200))
+    icon_size = (500, 500)
+    return QVariant(icon_size)
 
 
 class MediaObjectListModel(QAbstractListModel):
     ItemRole = Qt.UserRole
     DecorationSizeOrRatioRole = Qt.UserRole + 1
-
 
     def __init__(self, items=[], display_func=str_display_func, decoration_func=None,
                  edit_func=None, tooltip_func=str_display_func,
