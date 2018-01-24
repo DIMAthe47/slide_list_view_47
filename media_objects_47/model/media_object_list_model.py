@@ -39,7 +39,7 @@ def item_func(item):
 
 
 def decoration_size_hint_func(size_else_ratio=True):
-    icon_size = (500, 500)
+    icon_size = (200, 200)
     return QVariant(icon_size)
 
 
