@@ -32,10 +32,10 @@ class SlideViewerEditor(QWidget):
         print("to viewer:", start_level, start_rect)
         self.slide_viewer.load_slide(value.slide_path, start_level, start_rect)
 
-    def __init__(self, parent: QWidget) -> None:
+    def __init__(self, parent: QWidget, viewer_top_else_left) -> None:
         super().__init__(parent)
         self._slide_tile = None
-        self.slide_viewer = SlideViewer()
+        self.slide_viewer = SlideViewer(viewer_top_else_left=viewer_top_else_left)
         self.setAutoFillBackground(True)
         layout = QVBoxLayout()
         # layout.addWidget(QTextEdit("123123"))

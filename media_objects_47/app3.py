@@ -21,21 +21,30 @@ def display_func(item: SlideTile):
     return item.slide_path
 
 
+def slide_tile_func(item: SlideTile):
+    return item
+
+
+def slide_tile_from_filepath(filepath):
+    return SlideTile(filepath, None, None)
+
+
 def main():
     app = QApplication(sys.argv)
     win = MediaObjectMainWindow()
-    cache_size_in_kb = 300 * 10 ** 3
+    cache_size_in_kb = 700 * 10 ** 3
     QPixmapCache.setCacheLimit(cache_size_in_kb)
+
     filepathes = [
         r'C:\Users\DIMA\PycharmProjects\slide_cbir_47\downloads\images\19403.svs',
         # r'C:\Users\DIMA\Downloads\11096.svs'
     ]
-    media_objects = [
-        SlideTile(filepath, None, None) for filepath in filepathes
-    ]
 
+    media_objects = [slide_tile_from_filepath(filepath) for filepath in filepathes]
+    win.load_action.media_object_builder = slide_tile_from_filepath
     win.media_objects_widget.list_model.update_media_objects(media_objects)
     win.media_objects_widget.list_model.update_role_func(Qt.DisplayRole, display_func)
+    win.media_objects_widget.list_model.update_role_func(Qt.EditRole, slide_tile_func)
     win.media_objects_widget.list_view.setEditTriggers(
         QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked)
     item_delegate = SlideViewerDelegate()

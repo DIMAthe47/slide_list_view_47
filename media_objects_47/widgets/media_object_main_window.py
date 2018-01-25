@@ -2,7 +2,8 @@ from PyQt5.QtCore import Qt, QSize, QVariant, QSizeF
 from PyQt5.QtWidgets import QMainWindow, QActionGroup, QGroupBox, QFormLayout, QHBoxLayout, \
     QLineEdit, QDialogButtonBox, QVBoxLayout, QDialog, QListView, QAction
 
-from media_objects_47.model.media_object_list_model import imagepath_decoration_func, MediaObjectListModel
+from media_objects_47.model.media_object_list_model import MediaObjectListModel
+from media_objects_47.model.role_funcs import imagepath_decoration_func
 from media_objects_47.widgets.on_load_media_objects_action import OnLoadMediaObjectsAction
 from media_objects_47.widgets.on_get_selected_media_objects_action import OnGetSelectedMediaObjectsDataAction
 from media_objects_47.widgets.media_object_widget import MediaObjectWidget
@@ -19,9 +20,9 @@ class MediaObjectMainWindow(QMainWindow):
         menu_bar = self.menuBar()
 
         load_action_menu = menu_bar.addMenu("load_actions")
-        load_action = OnLoadMediaObjectsAction("load", menu_bar)
-        load_action.set_list_model(self.media_objects_widget.list_model)
-        load_action_menu.addAction(load_action)
+        self.load_action = OnLoadMediaObjectsAction("load", menu_bar)
+        self.load_action.set_list_model(self.media_objects_widget.list_model)
+        load_action_menu.addAction(self.load_action)
         menu_bar.addMenu(load_action_menu)
 
         get_media_objects_data_action = OnGetSelectedMediaObjectsDataAction(menu_bar)
@@ -60,7 +61,7 @@ class MediaObjectMainWindow(QMainWindow):
         list_model = self.media_objects_widget.list_model
         decoration_size_func = list_model.role_func[MediaObjectListModel.DecorationSizeOrRatioRole]
         if decoration_size_func is not None:
-            prev_icon_size = decoration_size_func(False).value()
+            prev_icon_size = decoration_size_func(False)
         else:
             prev_icon_size = QSize(200, 200)
         icon_size_w = QLineEdit(str(prev_icon_size[0]))
@@ -110,7 +111,7 @@ class MediaObjectMainWindow(QMainWindow):
                 else:
                     icon_size = (w, h)
 
-                return QVariant(icon_size)
+                return icon_size
 
             list_model = self.media_objects_widget.list_model
             list_model.beginResetModel()

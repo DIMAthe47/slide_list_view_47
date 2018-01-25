@@ -2,8 +2,10 @@ import typing
 from functools import lru_cache
 
 import openslide
+import os
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QSize, Qt, QRectF
+from PyQt5.QtGui import QPixmapCache
 from PyQt5.QtWidgets import QStyledItemDelegate, QStyleOptionViewItem, QGraphicsScene, QWidget
 
 from media_objects_47.model.media_object_list_model import MediaObjectListModel
@@ -18,8 +20,6 @@ class SlideViewerDelegate(QStyledItemDelegate):
 
     def __init__(self, parent: typing.Optional[QtCore.QObject] = None) -> None:
         super().__init__(parent)
-        # self.custom_decoration_size_or_ratio = (300, 300)
-        # self.custom_decoration_size_or_ratio = (0.25, 0.5)
 
     def calculate_expanded_dim(self, dim, expand):
         if isinstance(expand, float):
@@ -60,8 +60,8 @@ class SlideViewerDelegate(QStyledItemDelegate):
 
     def paint(self, painter: QtGui.QPainter, option: QStyleOptionViewItem, index: QtCore.QModelIndex) -> None:
         default_size = option.rect.size()
-        decoration_size = index.data(MediaObjectListModel.DecorationSizeOrRatioRole).value()
-        custom_decoration_size = self.calculate_custom_decoration_size(default_size, option, decoration_size)
+        decoration_size = index.data(MediaObjectListModel.DecorationSizeOrRatioRole)
+        custom_decoration_size = self.calculate_custom_decoration_size(default_size, option, QSize(*decoration_size))
         if option.decorationPosition == QStyleOptionViewItem.Left:
             text_x, text_y = custom_decoration_size.width(), 0
             text_width, text_height = default_size.width() - custom_decoration_size.width(), default_size.height()
@@ -69,27 +69,32 @@ class SlideViewerDelegate(QStyledItemDelegate):
             text_x, text_y = 0, custom_decoration_size.height()
             text_width, text_height = default_size.width(), default_size.height() - custom_decoration_size.height(),
 
-        scene = QGraphicsScene()
         slide_tile: SlideTile = index.data(MediaObjectListModel.ItemRole)
-        slide_graphics = SlideGraphicsGroup(slide_tile.slide_path)
-        scene.addItem(slide_graphics)
         level = slide_tile.level
         rect = slide_tile.rect
-        slide_helper = SlideHelper(slide_tile.slide_path)
         if level == None:
+            slide_helper = SlideHelper(slide_tile.slide_path)
             level = slide_helper.get_max_level()
             rect = QRectF(0, 0, *slide_helper.get_level_size(level))
-        else:
-            print("stop here")
-        slide_graphics.update_visible_level(level)
-        scene.setSceneRect(slide_helper.get_rect_for_level(level))
 
-        image = build_screenshot_image(scene, custom_decoration_size, rect)
-        pixmap = QtGui.QPixmap.fromImage(image)
-        # pixmap.save("img.jpg")
+        img_key = "{}_{}_{}".format(slide_tile.slide_path, custom_decoration_size, rect)
+        icon_pixmap = QPixmapCache.find(img_key)
+        if icon_pixmap is None:
+            print("read", img_key)
+            scene = QGraphicsScene()
+            slide_graphics = SlideGraphicsGroup(slide_tile.slide_path)
+            scene.clear()
+            scene.invalidate()
+            scene.addItem(slide_graphics)
+            slide_graphics.update_visible_level(level)
+            slide_helper = SlideHelper(slide_tile.slide_path)
+            scene.setSceneRect(slide_helper.get_rect_for_level(level))
+            image = build_screenshot_image(scene, custom_decoration_size, rect)
+            icon_pixmap = QtGui.QPixmap.fromImage(image)
+            QPixmapCache.insert(img_key, icon_pixmap)
 
         painter.fillRect(option.rect, painter.background())
-        painter.drawPixmap(option.rect.topLeft(), pixmap)
+        painter.drawPixmap(option.rect.topLeft(), icon_pixmap)
 
         option.rect = option.rect.translated(text_x, text_y)
         option.rect.setSize(QSize(text_width, text_height))
@@ -104,7 +109,7 @@ class SlideViewerDelegate(QStyledItemDelegate):
         # print(option.viewItemPosition)
         # print(option.decorationAlignment)
         # print(option.decorationPosition)
-        slide_viewer_editor = SlideViewerEditor(parent)
+        slide_viewer_editor = SlideViewerEditor(parent, option.decorationPosition == QStyleOptionViewItem.Top)
         slide_viewer_editor.setGeometry(option.rect)
         slide_viewer_editor.setContentsMargins(0, 0, 0, 0)
         return slide_viewer_editor
@@ -113,18 +118,3 @@ class SlideViewerDelegate(QStyledItemDelegate):
         if editor.slide_viewer.parent() and editor.slide_viewer.parent().layout():
             editor.slide_viewer.parent().layout().setContentsMargins(0, 0, 0, 0)
         super().updateEditorGeometry(editor, option, index)
-
-
-@lru_cache(maxsize=100)
-def read_thumbnail(slide_path, thumbnail_size):
-    slide = openslide.OpenSlide(slide_path)
-    thumbnail = slide.get_thumbnail(thumbnail_size)
-    return thumbnail
-
-
-@lru_cache(maxsize=100)
-def read_tile(slide_path, location, size, downsample):
-    slide = openslide.OpenSlide(slide_path)
-    level = slide.get_best_level_for_downsample(downsample)
-    tile = slide.read_region(location, level, size)
-    return tile

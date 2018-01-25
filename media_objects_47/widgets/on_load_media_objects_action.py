@@ -7,6 +7,7 @@ class OnLoadMediaObjectsAction(QAction):
         self.triggered.connect(self.on_load_action)
         self.list_model = None
         self.parent = parent
+        self.media_object_builder = lambda filepath: filepath
 
     def set_list_model(self, list_model):
         self.list_model = list_model
@@ -19,4 +20,5 @@ class OnLoadMediaObjectsAction(QAction):
             self.update_list_model(filepathes)
 
     def update_list_model(self, filepathes):
-        self.list_model.update_media_objects(filepathes)
+        mediaobjects = [self.media_object_builder(filepath) for filepath in filepathes]
+        self.list_model.update_media_objects(mediaobjects)
