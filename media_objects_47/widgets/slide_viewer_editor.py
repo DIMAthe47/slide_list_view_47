@@ -13,9 +13,9 @@ class SlideViewerEditor(QWidget):
     def slide_tile(self) -> SlideTile:
         # downsample = self.slide_viewer.slide_helper.get_downsample_for_level(self.slide_viewer.current_level)
         # level = slide_helper.get_best_level_for_downsample(downsample)
-        slide_tile = SlideTile(self._slide_tile.slide_path, self.slide_viewer.current_level,
+        slide_tile = SlideTile(self._slide_tile.slide_path, self.slide_viewer.slide_view_params.level,
                                self.slide_viewer.get_current_view_scene_rect())
-        print("from viewer:", self.slide_viewer.current_level, self.slide_viewer.get_current_view_scene_rect())
+        print("from viewer:", self.slide_viewer.slide_view_params.level, self.slide_viewer.get_current_view_scene_rect())
         return slide_tile
 
     @slide_tile.setter
