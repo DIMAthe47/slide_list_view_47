@@ -1,12 +1,13 @@
 from PyQt5.QtCore import Qt, QSize, QVariant, QSizeF
 from PyQt5.QtWidgets import QMainWindow, QActionGroup, QGroupBox, QFormLayout, QHBoxLayout, \
-    QLineEdit, QDialogButtonBox, QVBoxLayout, QDialog, QListView, QAction
+    QLineEdit, QDialogButtonBox, QVBoxLayout, QDialog, QListView, QAction, QStyledItemDelegate
 
 from media_objects_47.model.media_object_list_model import MediaObjectListModel
-from media_objects_47.model.role_funcs import imagepath_decoration_func
+from media_objects_47.model.role_funcs import imagepath_decoration_func, item_func, slideviewparams_decoration_func
 from media_objects_47.widgets.on_load_media_objects_action import OnLoadMediaObjectsAction
 from media_objects_47.widgets.on_get_selected_media_objects_action import OnGetSelectedMediaObjectsDataAction
 from media_objects_47.widgets.media_object_widget import MediaObjectWidget
+from media_objects_47.widgets.slide_viewer_delegate import SlideViewerDelegate
 
 
 class MediaObjectMainWindow(QMainWindow):
@@ -16,6 +17,7 @@ class MediaObjectMainWindow(QMainWindow):
         self.resize(1500, 600)
         self.media_objects_widget = MediaObjectWidget()
         self.setCentralWidget(self.media_objects_widget)
+        self._saved_delegate = None
 
         menu_bar = self.menuBar()
 
@@ -39,11 +41,14 @@ class MediaObjectMainWindow(QMainWindow):
         change_view_mode_action = view_actions_menu.addAction("change view_mode")
         change_view_mode_action.triggered.connect(self.on_change_view_mode)
 
+        toggle_delegate_action = view_actions_menu.addAction("toggle delegate")
+        toggle_delegate_action.triggered.connect(self.on_toggle_delegate)
+
     def on_toggle_decoration_action(self):
         list_model = self.media_objects_widget.list_model
         list_model.beginResetModel()
         if self.media_objects_widget.list_model.role_func[Qt.DecorationRole] is None:
-            list_model.update_role_func(Qt.DecorationRole, imagepath_decoration_func)
+            list_model.update_role_func(Qt.DecorationRole, slideviewparams_decoration_func)
         else:
             list_model.update_role_func(Qt.DecorationRole, None)
         list_model.endResetModel()
@@ -53,6 +58,15 @@ class MediaObjectMainWindow(QMainWindow):
             self.media_objects_widget.list_view.setViewMode(QListView.ListMode)
         else:
             self.media_objects_widget.list_view.setViewMode(QListView.IconMode)
+
+    def on_toggle_delegate(self):
+        if isinstance(self.media_objects_widget.list_view.itemDelegate(), SlideViewerDelegate):
+            self.media_objects_widget.list_model.update_role_func(Qt.EditRole, None)
+            self.media_objects_widget.list_view.setItemDelegate(QStyledItemDelegate(self))
+        else:
+            item_delegate = SlideViewerDelegate()
+            self.media_objects_widget.list_model.update_role_func(Qt.EditRole, item_func)
+            self.media_objects_widget.list_view.setItemDelegate(item_delegate)
 
     def on_icon_max_size_or_ratio_action(self):
         formGroupBox = QGroupBox("icon size or ratio (int or float)")

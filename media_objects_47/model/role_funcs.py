@@ -3,6 +3,8 @@ from PIL.ImageQt import ImageQt
 from PyQt5.QtCore import QVariant, QSize, Qt, QPoint
 from PyQt5.QtGui import QPixmapCache, QImage, QPainter, QPixmap
 
+from slide_viewer_47.common.slide_tile import SlideViewParams
+
 
 def str_display_func(item):
     return str(item)
@@ -28,6 +30,10 @@ def imagepath_decoration_func(filepath, icon_size: QSize):
             QPixmapCache.insert(img_key, icon_pixmap)
 
     return icon_pixmap
+
+
+def slideviewparams_decoration_func(slide_view_params: SlideViewParams, icon_size: QSize):
+    return imagepath_decoration_func(slide_view_params.slide_path, icon_size)
 
 
 def item_func(item):

@@ -1,40 +1,54 @@
 import collections
+import copy
 
 from PyQt5.QtCore import QRectF, pyqtProperty
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
-from slide_viewer_47.common.slide_tile import SlideTile
+from elapsed_timer import elapsed_timer
+from slide_viewer_47.common.level_builders import build_rects_and_colors_for_grid
+from slide_viewer_47.common.slide_tile import SlideTile, SlideViewParams
+from slide_viewer_47.common.utils import SlideHelper
 from slide_viewer_47.widgets.slide_viewer import SlideViewer
+from slide_viewer_47.widgets.slide_viewer_menu import to_json
+from tiling_utils import slice_rect2
 
 
 class SlideViewerEditor(QWidget):
 
-    @pyqtProperty(SlideTile, user=True)
-    def slide_tile(self) -> SlideTile:
+    @pyqtProperty(SlideViewParams, user=True)
+    def slide_view_params(self) -> SlideViewParams:
         # downsample = self.slide_viewer.slide_helper.get_downsample_for_level(self.slide_viewer.current_level)
         # level = slide_helper.get_best_level_for_downsample(downsample)
-        slide_tile = SlideTile(self._slide_tile.slide_path, self.slide_viewer.slide_view_params.level,
-                               self.slide_viewer.get_current_view_scene_rect())
-        print("from viewer:", self.slide_viewer.slide_view_params.level, self.slide_viewer.get_current_view_scene_rect())
-        return slide_tile
 
-    @slide_tile.setter
-    def slide_tile(self, value: SlideTile):
-        self._slide_tile = value
-        start_level, start_rect = None, None
-        if value.level is not None and value.rect is not None:
-            start_level = value.level
-            if isinstance(value.rect, collections.Iterable):
-                start_rect = QRectF(*value.rect)
-            else:
-                start_rect = value.rect
+        with elapsed_timer() as elapsed:
+            # slide_view_params = copy.deepcopy(self.slide_viewer.slide_view_params)
+            slide_view_params = self.slide_viewer.slide_view_params
+            print(elapsed())
+            return slide_view_params
 
-        print("to viewer:", start_level, start_rect)
-        self.slide_viewer.load_slide(value.slide_path, start_level, start_rect)
+        print("from viewer:", to_json(slide_view_params))
+        return slide_view_params
+
+    @slide_view_params.setter
+    def slide_tile(self, value: SlideViewParams):
+        with elapsed_timer() as elapsed:
+            # self._slide_view_params = copy.deepcopy(value)
+            # print(elapsed())
+            self._slide_view_params = value
+
+            slide_helper = SlideHelper(value.slide_path)
+            rects, colors = build_rects_and_colors_for_grid((224, 224), slide_helper.get_level_size(0),
+                                                            slice_func=slice_rect2)
+            # rects, colors = None, None
+            print(elapsed())
+            self._slide_view_params.grid_rects_0_level = rects
+            self._slide_view_params.grid_colors_0_level = colors
+            print("to viewer:", to_json(self._slide_view_params))
+            self.slide_viewer.load(self._slide_view_params)
 
     def __init__(self, parent: QWidget, viewer_top_else_left) -> None:
         super().__init__(parent)
-        self._slide_tile = None
+        self._slide_view_params = None
         self.slide_viewer = SlideViewer(viewer_top_else_left=viewer_top_else_left)
         self.setAutoFillBackground(True)
         layout = QVBoxLayout()
