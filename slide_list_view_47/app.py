@@ -25,7 +25,7 @@ def main():
     # dirpath = r'C:\Users\DIMA\Downloads\svs'
     # filepathes = [os.path.join(dirpath, filename) for filename in os.listdir(dirpath)]
     # items = [filepath_to_slideviewparams(filepath) for filepath in filepathes]
-    win.slide_list_widget.list_model.update_items(items)
+    # win.slide_list_widget.list_model.update_items(items)
 
     win.delegate_mode_action.trigger()
 
