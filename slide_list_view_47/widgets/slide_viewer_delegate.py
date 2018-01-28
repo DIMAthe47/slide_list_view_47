@@ -69,7 +69,7 @@ class SlideViewerDelegate(QStyledItemDelegate):
             text_width = custom_decoration_size.width()
             text_height = default_size.height() - custom_decoration_size.height()
 
-        slide_view_params: SlideViewParams = index.data(SlideListModel.ItemRole)
+        slide_view_params: SlideViewParams = index.data(SlideListModel.SlideViewParamsRole)
         scene_rect = QRectF(*slide_view_params.level_rect)
         img_key = "{}_{}_{}".format(slide_view_params.slide_path, custom_decoration_size, scene_rect)
         icon_pixmap = QPixmapCache.find(img_key)

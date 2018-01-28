@@ -11,7 +11,7 @@ def str_display_func(item):
     return str(item)
 
 
-def slideviewparams_to_str(item: SlideViewParams):
+def slideviewparams_to_str(item: any):
     return item.slide_path
 
 
