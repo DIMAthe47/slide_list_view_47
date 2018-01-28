@@ -1,8 +1,4 @@
 import typing
-from functools import lru_cache
-
-import openslide
-import os
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QSize, Qt, QRectF
 from PyQt5.QtGui import QPixmapCache
@@ -11,8 +7,8 @@ from PyQt5.QtWidgets import QStyledItemDelegate, QStyleOptionViewItem, QGraphics
 from media_objects_47.model.media_object_list_model import MediaObjectListModel
 from media_objects_47.widgets.slide_viewer_editor import SlideViewerEditor
 from slide_viewer_47.common.screenshot_builders import build_screenshot_image
-from slide_viewer_47.common.slide_tile import SlideTile, SlideViewParams
-from slide_viewer_47.common.utils import SlideHelper
+from slide_viewer_47.common.slide_view_params import SlideViewParams
+from slide_viewer_47.common.slide_helper import SlideHelper
 from slide_viewer_47.graphics.slide_graphics_group import SlideGraphicsGroup
 
 
@@ -20,12 +16,6 @@ class SlideViewerDelegate(QStyledItemDelegate):
 
     def __init__(self, parent: typing.Optional[QtCore.QObject] = None) -> None:
         super().__init__(parent)
-
-    def calculate_expanded_dim(self, dim, expand):
-        if isinstance(expand, float):
-            expand *= dim
-        expanded = dim + expand
-        return expanded
 
     def calculate_size(self, dim, expand):
         if isinstance(expand, float):
@@ -84,7 +74,7 @@ class SlideViewerDelegate(QStyledItemDelegate):
         img_key = "{}_{}_{}".format(slide_view_params.slide_path, custom_decoration_size, scene_rect)
         icon_pixmap = QPixmapCache.find(img_key)
         if icon_pixmap is None:
-            print("read", img_key)
+            # print("read", img_key)
             scene = QGraphicsScene()
             slide_graphics = SlideGraphicsGroup(slide_view_params)
             scene.clear()
@@ -99,8 +89,8 @@ class SlideViewerDelegate(QStyledItemDelegate):
 
         painter.fillRect(option.rect, painter.background())
         painter.drawPixmap(option.rect.topLeft(), icon_pixmap)
-        painter.drawRect(option.rect.topLeft().x(), option.rect.topLeft().y(), icon_pixmap.width(),
-                         icon_pixmap.height())
+        # painter.drawRect(option.rect.topLeft().x(), option.rect.topLeft().y(), icon_pixmap.width(),
+        #                  icon_pixmap.height())
 
         option.rect = option.rect.translated(text_x, text_y)
         option.rect.setSize(QSize(text_width, text_height))
@@ -108,9 +98,6 @@ class SlideViewerDelegate(QStyledItemDelegate):
         super().paint(painter, option, index)
 
     def createEditor(self, parent: QWidget, option: QStyleOptionViewItem, index: QtCore.QModelIndex) -> QWidget:
-        # option.decorationPosition = QStyleOptionViewItem.Right
-        # option.decorationSize = QSize(270, 200)
-        # return super().createEditor(parent, option, index)
         # print(option.displayAlignment)
         # print(option.viewItemPosition)
         # print(option.decorationAlignment)

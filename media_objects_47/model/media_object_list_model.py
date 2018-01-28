@@ -2,18 +2,22 @@ import typing
 
 from PyQt5.QtCore import QAbstractListModel, QModelIndex, Qt, QVariant, QSize
 
-from media_objects_47.model.role_funcs import str_display_func, item_func, decoration_size_hint_func
+from media_objects_47.model.role_funcs import str_display_func, item_func, decoration_size_hint_func, \
+    slideviewparams_to_str
 
 
 class MediaObjectListModel(QAbstractListModel):
     ItemRole = Qt.UserRole
     DecorationSizeOrRatioRole = Qt.UserRole + 1
 
-    def __init__(self, items=[], display_func=str_display_func, decoration_func=None,
-                 edit_func=None, tooltip_func=str_display_func,
+    def __init__(self, items=[], display_func=slideviewparams_to_str, decoration_func=None,
+                 edit_func=None, tooltip_func=None,
                  size_hint_func=None, item_func=item_func, decoration_size_hint_func=decoration_size_hint_func):
         super().__init__()
         self.items = items
+
+        if tooltip_func is None:
+            tooltip_func = display_func
 
         self.role_func = {
             Qt.SizeHintRole: size_hint_func,

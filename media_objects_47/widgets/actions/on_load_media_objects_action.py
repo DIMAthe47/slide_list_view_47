@@ -1,5 +1,7 @@
 from PyQt5.QtWidgets import QAction, QFileDialog
 
+from media_objects_47.model.role_funcs import filepath_to_slideviewparams
+
 
 class OnLoadMediaObjectsAction(QAction):
     def __init__(self, title="load", parent=None):
@@ -7,7 +9,7 @@ class OnLoadMediaObjectsAction(QAction):
         self.triggered.connect(self.on_load_action)
         self.list_model = None
         self.parent = parent
-        self.media_object_builder = lambda filepath: filepath
+        self.media_object_builder = filepath_to_slideviewparams
 
     def set_list_model(self, list_model):
         self.list_model = list_model

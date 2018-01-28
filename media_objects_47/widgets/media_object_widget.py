@@ -7,7 +7,7 @@ from media_objects_47.widgets.media_object_list_view import MediaObjectListView
 class MediaObjectWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setAcceptDrops(True)
+        # self.setAcceptDrops(True)
 
         self.list_model = MediaObjectListModel()
         self.list_view = MediaObjectListView(self)

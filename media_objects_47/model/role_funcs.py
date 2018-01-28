@@ -2,12 +2,17 @@ import openslide
 from PIL.ImageQt import ImageQt
 from PyQt5.QtCore import QVariant, QSize, Qt, QPoint
 from PyQt5.QtGui import QPixmapCache, QImage, QPainter, QPixmap
+from PyQt5.QtWidgets import QGraphicsView
 
-from slide_viewer_47.common.slide_tile import SlideViewParams
+from slide_viewer_47.common.slide_view_params import SlideViewParams
 
 
 def str_display_func(item):
     return str(item)
+
+
+def slideviewparams_to_str(item: SlideViewParams):
+    return item.slide_path
 
 
 def imagepath_decoration_func(filepath, icon_size: QSize):
@@ -43,3 +48,32 @@ def item_func(item):
 def decoration_size_hint_func(size_else_ratio=True):
     icon_size = (200, 200)
     return icon_size
+
+
+def filepath_to_slideviewparams(filepath):
+    return SlideViewParams(filepath)
+
+
+def decoration_size_func_factory(view: QGraphicsView, width_or_ratio, height_or_ratio):
+    w = width_or_ratio
+    h = height_or_ratio
+
+    def decoration_size_func(size_else_ratio=True):
+        viewport_size = view.viewport().size()
+        if isinstance(w, float):
+            icon_width = viewport_size.width() * w - view.spacing() * 2 - 2
+        else:
+            icon_width = w
+        if isinstance(h, float):
+            icon_height = viewport_size.height() * h - view.spacing() * 2 - 2
+        else:
+            icon_height = h
+
+        if size_else_ratio:
+            icon_size = (icon_width, icon_height)
+        else:
+            icon_size = (w, h)
+
+        return icon_size
+
+    return decoration_size_func

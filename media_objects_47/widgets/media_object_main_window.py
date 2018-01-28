@@ -1,11 +1,12 @@
-from PyQt5.QtCore import Qt, QSize, QVariant, QSizeF
+from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtWidgets import QMainWindow, QActionGroup, QGroupBox, QFormLayout, QHBoxLayout, \
     QLineEdit, QDialogButtonBox, QVBoxLayout, QDialog, QListView, QAction, QStyledItemDelegate
 
 from media_objects_47.model.media_object_list_model import MediaObjectListModel
-from media_objects_47.model.role_funcs import imagepath_decoration_func, item_func, slideviewparams_decoration_func
-from media_objects_47.widgets.on_load_media_objects_action import OnLoadMediaObjectsAction
-from media_objects_47.widgets.on_get_selected_media_objects_action import OnGetSelectedMediaObjectsDataAction
+from media_objects_47.model.role_funcs import item_func, slideviewparams_decoration_func, \
+    decoration_size_func_factory
+from media_objects_47.widgets.actions.on_load_media_objects_action import OnLoadMediaObjectsAction
+from media_objects_47.widgets.actions.on_get_selected_media_objects_action import OnGetSelectedMediaObjectsDataAction
 from media_objects_47.widgets.media_object_widget import MediaObjectWidget
 from media_objects_47.widgets.slide_viewer_delegate import SlideViewerDelegate
 
@@ -35,22 +36,40 @@ class MediaObjectMainWindow(QMainWindow):
         icon_max_size_or_ratio_action = view_actions_menu.addAction("icon_max_size_or_ratio")
         icon_max_size_or_ratio_action.triggered.connect(self.on_icon_max_size_or_ratio_action)
 
-        toggle_decoration_action = view_actions_menu.addAction("toggle decoration")
-        toggle_decoration_action.triggered.connect(self.on_toggle_decoration_action)
-
         change_view_mode_action = view_actions_menu.addAction("change view_mode")
         change_view_mode_action.triggered.connect(self.on_change_view_mode)
 
-        toggle_delegate_action = view_actions_menu.addAction("toggle delegate")
-        toggle_delegate_action.triggered.connect(self.on_toggle_delegate)
+        action_group = QActionGroup(self)
+        self.text_mode_action = QAction("text", action_group)
+        self.text_mode_action.setCheckable(True)
+        self.text_mode_action.triggered.connect(self.on_text_mode_action)
 
-    def on_toggle_decoration_action(self):
+        self.decoration_mode_action = QAction("text+decoration", action_group)
+        self.decoration_mode_action.setCheckable(True)
+        self.decoration_mode_action.triggered.connect(self.on_decoration_mode_action)
+        self.delegate_mode_action = QAction("slide_viewer_delegate", action_group)
+        self.delegate_mode_action.setCheckable(True)
+        self.delegate_mode_action.triggered.connect(self.on_delegate_mode_action)
+
+        view_actions_menu.addAction(self.text_mode_action)
+        view_actions_menu.addAction(self.decoration_mode_action)
+        view_actions_menu.addAction(self.delegate_mode_action)
+
+    def on_text_mode_action(self):
+        self.change_mode(QStyledItemDelegate(self), None, None)
+
+    def on_decoration_mode_action(self):
+        self.change_mode(QStyledItemDelegate(self), None, slideviewparams_decoration_func)
+
+    def on_delegate_mode_action(self):
+        self.change_mode(SlideViewerDelegate(self), item_func, None)
+
+    def change_mode(self, item_delegate, edit_role_func, decoration_role_func):
         list_model = self.media_objects_widget.list_model
         list_model.beginResetModel()
-        if self.media_objects_widget.list_model.role_func[Qt.DecorationRole] is None:
-            list_model.update_role_func(Qt.DecorationRole, slideviewparams_decoration_func)
-        else:
-            list_model.update_role_func(Qt.DecorationRole, None)
+        self.media_objects_widget.list_model.update_role_func(Qt.EditRole, edit_role_func)
+        list_model.update_role_func(Qt.DecorationRole, decoration_role_func)
+        self.media_objects_widget.list_view.setItemDelegate(item_delegate)
         list_model.endResetModel()
 
     def on_change_view_mode(self):
@@ -58,15 +77,6 @@ class MediaObjectMainWindow(QMainWindow):
             self.media_objects_widget.list_view.setViewMode(QListView.ListMode)
         else:
             self.media_objects_widget.list_view.setViewMode(QListView.IconMode)
-
-    def on_toggle_delegate(self):
-        if isinstance(self.media_objects_widget.list_view.itemDelegate(), SlideViewerDelegate):
-            self.media_objects_widget.list_model.update_role_func(Qt.EditRole, None)
-            self.media_objects_widget.list_view.setItemDelegate(QStyledItemDelegate(self))
-        else:
-            item_delegate = SlideViewerDelegate()
-            self.media_objects_widget.list_model.update_role_func(Qt.EditRole, item_func)
-            self.media_objects_widget.list_view.setItemDelegate(item_delegate)
 
     def on_icon_max_size_or_ratio_action(self):
         formGroupBox = QGroupBox("icon size or ratio (int or float)")
@@ -109,23 +119,7 @@ class MediaObjectMainWindow(QMainWindow):
             except:
                 h = float(icon_size_h.text())
 
-            def decoration_size_func(size_else_ratio=True):
-                viewport_size = self.media_objects_widget.list_view.viewport().size()
-                if isinstance(w, float):
-                    icon_width = viewport_size.width() * w - view.spacing() * 2 - 2
-                else:
-                    icon_width = w
-                if isinstance(h, float):
-                    icon_height = viewport_size.height() * h - view.spacing() * 2 - 2
-                else:
-                    icon_height = h
-
-                if size_else_ratio:
-                    icon_size = (icon_width, icon_height)
-                else:
-                    icon_size = (w, h)
-
-                return icon_size
+            decoration_size_func = decoration_size_func_factory(view, w, h)
 
             list_model = self.media_objects_widget.list_model
             list_model.beginResetModel()
