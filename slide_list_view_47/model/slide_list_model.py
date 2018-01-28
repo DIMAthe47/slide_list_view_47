@@ -20,7 +20,7 @@ class SlideListModel(QAbstractListModel):
                  tooltip_func: Callable[[Any], str] = None,
                  size_hint_func: Callable[[Any], QSize] = None,
                  slide_view_params_func: Callable[[Any], SlideViewParams] = item_func,
-                 decoration_size_hint_func: Callable[[Any,], Tuple[Number, Number]] = decoration_size_hint_func):
+                 decoration_size_hint_func: Callable[[Any, ], Tuple[Number, Number]] = decoration_size_hint_func):
         # assuming by default item is of type SlideViewParams
         super().__init__()
         self.items = items
@@ -37,6 +37,8 @@ class SlideListModel(QAbstractListModel):
         }
 
     def update_role_func(self, role, func):
+        if role == SlideListModel.SlideViewParamsRole:
+            self.role_func[Qt.EditRole] = func
         self.role_func[role] = func
 
     def rowCount(self, parent=QModelIndex()):

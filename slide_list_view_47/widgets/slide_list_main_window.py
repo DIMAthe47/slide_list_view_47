@@ -64,10 +64,10 @@ class SlideListMainWindow(QMainWindow):
     def on_delegate_mode_action(self):
         self.change_mode(SlideViewerDelegate(self), item_func, None)
 
-    def change_mode(self, item_delegate, edit_role_func, decoration_role_func):
+    def change_mode(self, item_delegate, slide_view_params_func, decoration_role_func):
         list_model = self.slide_list_widget.list_model
         list_model.beginResetModel()
-        self.slide_list_widget.list_model.update_role_func(Qt.EditRole, edit_role_func)
+        self.slide_list_widget.list_model.update_role_func(SlideListModel.SlideViewParamsRole, slide_view_params_func)
         list_model.update_role_func(Qt.DecorationRole, decoration_role_func)
         self.slide_list_widget.list_view.setItemDelegate(item_delegate)
         list_model.endResetModel()
