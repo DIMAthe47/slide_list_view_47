@@ -15,7 +15,7 @@ class SlideListMainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle('Slide list')
-        self.resize(1500, 600)
+        self.resize(500, 600)
         self.slide_list_widget = SlideListWidget()
         self.setCentralWidget(self.slide_list_widget)
         self._saved_delegate = None

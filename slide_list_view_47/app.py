@@ -3,6 +3,7 @@ import sys
 import os
 from PyQt5.QtGui import QPixmapCache
 
+from slide_list_view_47.model.role_funcs import filepath_to_slideviewparams
 from slide_list_view_47.widgets.slide_list_main_window import SlideListMainWindow
 from PyQt5.QtWidgets import QApplication
 
@@ -21,13 +22,10 @@ def main():
     QPixmapCache.setCacheLimit(cache_size_in_kb)
 
     # dirpath = r'C:\Users\DIMA\Google Диск\Pictures\Mountains'
-    # filepathes = [os.path.join(dirpath, filename) for filename in os.listdir(dirpath)]
-    # filepathes = [
-    #     r'C:\Users\DIMA\PycharmProjects\slide_cbir_47\downloads\images\19403.svs',
-    # r'C:\Users\DIMA\Downloads\11096.svs'
-    # ]
-    # items = [filepath_to_slideviewparams(filepath) for filepath in filepathes]
-    # win.slide_list_widget.list_model.update_items(items)
+    dirpath = r'C:\Users\DIMA\Downloads\svs'
+    filepathes = [os.path.join(dirpath, filename) for filename in os.listdir(dirpath)]
+    items = [filepath_to_slideviewparams(filepath) for filepath in filepathes]
+    win.slide_list_widget.list_model.update_items(items)
 
     win.delegate_mode_action.trigger()
 

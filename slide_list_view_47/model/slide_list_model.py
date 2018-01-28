@@ -16,9 +16,6 @@ class SlideListModel(QAbstractListModel):
         super().__init__()
         self.items = items
 
-        if tooltip_func is None:
-            tooltip_func = display_func
-
         self.role_func = {
             Qt.SizeHintRole: size_hint_func,
             Qt.DisplayRole: display_func,
