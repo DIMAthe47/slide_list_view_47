@@ -2,7 +2,7 @@
 
 A pyqt5 widget for viewing collection of whole-slide images with Openslide.
 
-In order to make in-place slide exploring possible project depends on [slide_viewer_47](https://github.com/DIMAthe47/slide_viewer_47)
+In order to make in-place slide exploring possible project depends on [slide_viewer_47](https://github.com/DIMAthe47/slide_viewer_47).
 
 Screenshot of slide list widget:
 
