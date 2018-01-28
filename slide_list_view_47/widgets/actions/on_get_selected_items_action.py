@@ -1,9 +1,9 @@
 from PyQt5.QtWidgets import QAction, QMessageBox
 
-from media_objects_47.model.media_object_list_model import MediaObjectListModel
+from slide_list_view_47.model.slide_list_model import SlideListModel
 
 
-class OnGetSelectedMediaObjectsDataAction(QAction):
+class OnGetSelectedItemsDataAction(QAction):
     def __init__(self, parent, title="get_selected_items"):
         super().__init__(title, parent)
         self.triggered.connect(self.on_get_data_action)
@@ -20,7 +20,7 @@ class OnGetSelectedMediaObjectsDataAction(QAction):
     def on_get_data_action(self):
         data = []
         for index in self.list_view.selectionModel().selectedIndexes():
-            selected_media_object_data = self.list_view.model().data(index, MediaObjectListModel.ItemRole).value()
+            selected_media_object_data = self.list_view.model().data(index, SlideListModel.ItemRole).value()
             data.append(selected_media_object_data)
         self.data_consumer(data)
 

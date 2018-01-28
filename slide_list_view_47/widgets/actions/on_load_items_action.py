@@ -1,9 +1,9 @@
 from PyQt5.QtWidgets import QAction, QFileDialog
 
-from media_objects_47.model.role_funcs import filepath_to_slideviewparams
+from slide_list_view_47.model.role_funcs import filepath_to_slideviewparams
 
 
-class OnLoadMediaObjectsAction(QAction):
+class OnLoadItemsAction(QAction):
     def __init__(self, title="load", parent=None):
         super().__init__(title, parent)
         self.triggered.connect(self.on_load_action)
@@ -23,4 +23,4 @@ class OnLoadMediaObjectsAction(QAction):
 
     def update_list_model(self, filepathes):
         mediaobjects = [self.media_object_builder(filepath) for filepath in filepathes]
-        self.list_model.update_media_objects(mediaobjects)
+        self.list_model.update_items(mediaobjects)

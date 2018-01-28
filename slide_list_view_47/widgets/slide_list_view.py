@@ -3,7 +3,7 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QListView, QAbstractItemView
 
 
-class MediaObjectListView(QListView):
+class SlideListView(QListView):
     wheelEventSignal = pyqtSignal(QtGui.QWheelEvent)
 
     def __init__(self, parent=None):

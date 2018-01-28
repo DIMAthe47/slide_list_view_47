@@ -20,14 +20,14 @@ to it populated with list of
 - MediaObject from filepath
 
   List of MediaObject can come from anywhere, but often
-  use case is when MediaObject is representation of file in filesystem. So there is predefined [OnLoadMediaObjectsAction](https://github.com/DIMAthe47/media_objects_47/blob/master/media_object_action.py)
+  use case is when MediaObject is representation of file in filesystem. So there is predefined [OnLoadItemsAction](https://github.com/DIMAthe47/media_objects_47/blob/master/media_object_action.py)
   for which you just need to pass custom function that builds MediaObject from filepath:
   ```
   media_object_extractor(filepath:str)->MediaObject
   ```
 - Selection
 
-  [OnLoadMediaObjectsAction](https://github.com/DIMAthe47/media_objects_47/blob/master/media_object_action.py) serves for getting data
+  [OnLoadItemsAction](https://github.com/DIMAthe47/media_objects_47/blob/master/media_object_action.py) serves for getting data
   of selected MediaObject`s.
   To use it you need to pass it custom function:
   ```

@@ -2,11 +2,11 @@ import typing
 
 from PyQt5.QtCore import QAbstractListModel, QModelIndex, Qt, QVariant, QSize
 
-from media_objects_47.model.role_funcs import str_display_func, item_func, decoration_size_hint_func, \
+from slide_list_view_47.model.role_funcs import str_display_func, item_func, decoration_size_hint_func, \
     slideviewparams_to_str
 
 
-class MediaObjectListModel(QAbstractListModel):
+class SlideListModel(QAbstractListModel):
     ItemRole = Qt.UserRole
     DecorationSizeOrRatioRole = Qt.UserRole + 1
 
@@ -25,8 +25,8 @@ class MediaObjectListModel(QAbstractListModel):
             Qt.EditRole: edit_func,
             Qt.ToolTipRole: tooltip_func,
             Qt.DecorationRole: decoration_func,
-            MediaObjectListModel.ItemRole: item_func,
-            MediaObjectListModel.DecorationSizeOrRatioRole: decoration_size_hint_func,
+            SlideListModel.ItemRole: item_func,
+            SlideListModel.DecorationSizeOrRatioRole: decoration_size_hint_func,
         }
 
     def update_role_func(self, role, func):
@@ -41,10 +41,10 @@ class MediaObjectListModel(QAbstractListModel):
             custom_handler = self.role_func[role]
             if custom_handler:
                 if role == Qt.DecorationRole:
-                    icon_size = self.data(index, MediaObjectListModel.DecorationSizeOrRatioRole)
+                    icon_size = self.data(index, SlideListModel.DecorationSizeOrRatioRole)
                     decoration = custom_handler(item, QSize(*icon_size.value()))
                     return QVariant(decoration)
-                elif role == MediaObjectListModel.DecorationSizeOrRatioRole:
+                elif role == SlideListModel.DecorationSizeOrRatioRole:
                     icon_size = custom_handler()
                     return QVariant(icon_size)
                 else:
@@ -58,7 +58,7 @@ class MediaObjectListModel(QAbstractListModel):
         else:
             return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
-    def update_media_objects(self, items):
+    def update_items(self, items):
         self.beginResetModel()
         self.items = items
         self.endResetModel()
