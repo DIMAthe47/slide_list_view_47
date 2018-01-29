@@ -20,7 +20,7 @@ class OnGetSelectedItemsDataAction(QAction):
     def on_get_data_action(self):
         data = []
         for index in self.list_view.selectionModel().selectedIndexes():
-            selected_media_object_data = self.list_view.model().data(index, SlideListModel.SlideViewParamsRole).value()
+            selected_media_object_data = self.list_view.model().data(index, SlideListModel.ItemRole).value()
             data.append(selected_media_object_data)
         self.data_consumer(data)
 

@@ -35,11 +35,11 @@ class SlideViewerEditor(QWidget):
 
             slide_helper = SlideHelper(value.slide_path)
             # grid for testing purpose
-            rects, colors = build_rects_and_colors_for_grid((224, 224), slide_helper.get_level_size(0),
-                                                            slice_func=slice_rect2)
+            # rects, colors = build_rects_and_colors_for_grid((224, 224), slide_helper.get_level_size(0),
+            #                                                 slice_func=slice_rect2)
             # print(elapsed())
-            self._slide_view_params.grid_rects_0_level = rects
-            self._slide_view_params.grid_colors_0_level = colors
+            # self._slide_view_params.grid_rects_0_level = rects
+            # self._slide_view_params.grid_colors_0_level = colors
             # print("to viewer:", to_json(self._slide_view_params))
             self.slide_viewer.load(self._slide_view_params)
 

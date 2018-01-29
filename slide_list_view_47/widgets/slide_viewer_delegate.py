@@ -71,7 +71,9 @@ class SlideViewerDelegate(QStyledItemDelegate):
 
         slide_view_params: SlideViewParams = index.data(SlideListModel.SlideViewParamsRole)
         scene_rect = QRectF(*slide_view_params.level_rect)
-        img_key = "{}_{}_{}".format(slide_view_params.slide_path, custom_decoration_size, scene_rect)
+        img_key = "{}_{}_{}_{}_{}_{}_{}".format(slide_view_params.slide_path, custom_decoration_size, slide_view_params.level,
+                                       slide_view_params.level_rect, id(slide_view_params.grid_rects_0_level),
+                                       id(slide_view_params.grid_colors_0_level), slide_view_params.grid_visible)
         icon_pixmap = QPixmapCache.find(img_key)
         if icon_pixmap is None:
             # print("read", img_key)

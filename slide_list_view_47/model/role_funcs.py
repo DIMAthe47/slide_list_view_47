@@ -7,10 +7,6 @@ from PyQt5.QtWidgets import QGraphicsView
 from slide_viewer_47.common.slide_view_params import SlideViewParams
 
 
-def str_display_func(item):
-    return str(item)
-
-
 def slideviewparams_to_str(item: any):
     return item.slide_path
 
@@ -43,6 +39,10 @@ def slideviewparams_decoration_func(slide_view_params: SlideViewParams, icon_siz
 
 def item_func(item):
     return item
+
+
+def item_setter(items, index, value):
+    items[index.row()] = value
 
 
 def decoration_size_hint_func(size_else_ratio=True):

@@ -4,8 +4,8 @@ from typing import Callable, Any, Tuple
 from PyQt5.QtCore import QAbstractListModel, QModelIndex, Qt, QVariant, QSize
 from PyQt5.QtGui import QPixmap
 
-from slide_list_view_47.model.role_funcs import str_display_func, item_func, decoration_size_hint_func, \
-    slideviewparams_to_str
+from slide_list_view_47.model.role_funcs import item_func, decoration_size_hint_func, \
+    slideviewparams_to_str, item_setter
 from slide_viewer_47.common.slide_view_params import SlideViewParams
 
 
@@ -20,15 +20,17 @@ class SlideListModel(QAbstractListModel):
                  tooltip_func: Callable[[Any], str] = None,
                  size_hint_func: Callable[[Any], QSize] = None,
                  slide_view_params_func: Callable[[Any], SlideViewParams] = item_func,
+                 slide_view_params_setter: Callable[[SlideViewParams],None] = item_setter,
                  decoration_size_hint_func: Callable[[Any, ], Tuple[Number, Number]] = decoration_size_hint_func):
         # assuming by default item is of type SlideViewParams
         super().__init__()
         self.items = items
+        self.slide_view_params_setter = slide_view_params_setter
 
         self.role_func = {
             Qt.SizeHintRole: size_hint_func,
             Qt.DisplayRole: display_func,
-            Qt.EditRole: slide_view_params_func,
+            Qt.EditRole: None,
             Qt.ToolTipRole: tooltip_func,
             Qt.DecorationRole: decoration_func,
             SlideListModel.ItemRole: item_func,
@@ -75,7 +77,9 @@ class SlideListModel(QAbstractListModel):
     def setData(self, index: QModelIndex, value: Any, role=Qt.DisplayRole) -> bool:
         item = self.items[index.row()]
         if role == Qt.EditRole:
-            self.items[index.row()] = value
+            self.slide_view_params_setter(self.items, index, value)
+            # self.setData(index,value, SlideListModel.SlideViewParamsRole)
+            # self.items[index.row()] = value
             self.dataChanged.emit(index, index)
             return True
         return False
