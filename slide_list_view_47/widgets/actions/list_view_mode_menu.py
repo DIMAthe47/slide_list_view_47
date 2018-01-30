@@ -5,8 +5,8 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QAction, QGroupBox, QHBoxLayout, QLineEdit, QFormLayout, QDialog, QDialogButtonBox, \
     QVBoxLayout, QMenu, QActionGroup, QStyledItemDelegate, QMenuBar
 
-from slide_list_view_47.model.role_funcs import decoration_size_func_factory, slideviewparams_decoration_func, \
-    imagepath_decoration_func, slideviewparams_to_str
+from slide_list_view_47.model.role_funcs import decoration_size_func_factory, slideviewparams_to_pixmap, \
+    slidepath_to_pximap, slideviewparams_to_str
 from slide_list_view_47.model.slide_list_model import SlideListModel
 from slide_list_view_47.widgets.actions.item_mode_menu import ItemModeMenu
 from slide_list_view_47.widgets.actions.on_change_view_mode_action import OnChangeViewModeAction

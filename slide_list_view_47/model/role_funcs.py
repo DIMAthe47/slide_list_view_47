@@ -11,12 +11,12 @@ def slideviewparams_to_str(item: any):
     return item.slide_path
 
 
-def imagepath_decoration_func(filepath, icon_size: QSize):
-    img_key = filepath + "_{}".format(str(icon_size))
+def slidepath_to_pximap(slidepath, icon_size: QSize):
+    img_key = "{}_{}".format(slidepath, str(icon_size))
     icon_pixmap = QPixmapCache.find(img_key)
     if icon_pixmap is None:
-        # pilimg: Image.Image = Image.open(filepath)
-        with openslide.open_slide(filepath) as slide:
+        # pilimg: Image.Image = Image.open(slidepath)
+        with openslide.open_slide(slidepath) as slide:
             pilimg = slide.get_thumbnail((icon_size.width(), icon_size.height()))
             icon_image = QImage(icon_size, QImage.Format_RGB888)
             painter = QPainter(icon_image)
@@ -33,25 +33,24 @@ def imagepath_decoration_func(filepath, icon_size: QSize):
     return icon_pixmap
 
 
-def slideviewparams_decoration_func(slide_view_params: SlideViewParams, icon_size: QSize):
-    return imagepath_decoration_func(slide_view_params.slide_path, icon_size)
+def slideviewparams_to_pixmap(slide_view_params: SlideViewParams, icon_size: QSize):
+    return slidepath_to_pximap(slide_view_params.slide_path, icon_size)
 
 
 def item_func(item):
     return item
 
 
-def item_setter(items, index, value):
-    items[index.row()] = value
-
+# def item_setter(items, index, value):
+#     items[index.row()] = value
 
 def decoration_size_hint_func(size_else_ratio=True):
     icon_size = (200, 200)
     return icon_size
 
 
-def filepath_to_slideviewparams(filepath):
-    return SlideViewParams(filepath)
+def slidepath_to_slideviewparams(slidepath):
+    return SlideViewParams(slidepath)
 
 
 def decoration_size_func_factory(view: QGraphicsView, width_or_ratio, height_or_ratio):
@@ -61,11 +60,11 @@ def decoration_size_func_factory(view: QGraphicsView, width_or_ratio, height_or_
     def decoration_size_func(size_else_ratio=True):
         viewport_size = view.viewport().size()
         if isinstance(w, float):
-            icon_width = viewport_size.width() * w - view.spacing() * 2 - 2
+            icon_width = viewport_size.width() * w - view.spacing() * 2
         else:
             icon_width = w
         if isinstance(h, float):
-            icon_height = viewport_size.height() * h - view.spacing() * 2 - 2
+            icon_height = viewport_size.height() * h - view.spacing() * 2
         else:
             icon_height = h
 

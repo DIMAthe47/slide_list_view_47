@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QMainWindow, QActionGroup, QGroupBox, QFormLayout, Q
     QLineEdit, QDialogButtonBox, QVBoxLayout, QDialog, QListView, QAction, QStyledItemDelegate
 
 from slide_list_view_47.model.slide_list_model import SlideListModel
-from slide_list_view_47.model.role_funcs import item_func, slideviewparams_decoration_func, \
+from slide_list_view_47.model.role_funcs import item_func, slideviewparams_to_pixmap, \
     decoration_size_func_factory
 from slide_list_view_47.widgets.actions.list_view_mode_menu import ListViewModeMenu
 from slide_list_view_47.widgets.actions.item_mode_menu import ItemModeMenu

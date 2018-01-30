@@ -1,6 +1,6 @@
 import typing
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtCore import QSize, Qt, QRectF
+from PyQt5.QtCore import QSize, Qt, QRectF, QSizeF
 from PyQt5.QtGui import QPixmapCache
 from PyQt5.QtWidgets import QStyledItemDelegate, QStyleOptionViewItem, QGraphicsScene, QWidget
 
@@ -16,66 +16,59 @@ class SlideViewerDelegate(QStyledItemDelegate):
 
     def __init__(self, parent: typing.Optional[QtCore.QObject] = None) -> None:
         super().__init__(parent)
+        self.icon_and_text_spacing = 4
 
-    def calculate_size(self, dim, expand):
-        if isinstance(expand, float):
-            expand *= dim
-        expanded = expand
-        return expanded
+    def calculate_size(self, item_length, decoration_length_or_ratio):
+        if isinstance(decoration_length_or_ratio, float):
+            decoration_length_or_ratio *= item_length
+        new_item_length = decoration_length_or_ratio
+        return new_item_length
 
-    def calculate_custom_decoration_size(self, default_size: QSize, option: QStyleOptionViewItem,
+    def calculate_custom_decoration_size(self, item_size: QSize, option: QStyleOptionViewItem,
                                          decoration_size: QSize):
-        w, h = default_size.width(), default_size.height()
-        w_expand, h_expand = decoration_size.width(), decoration_size.height()
+        w, h = item_size.width(), item_size.height()
+        decoration_w_or_ratio, decoration_h_or_ratio = decoration_size.width(), decoration_size.height()
         if option.decorationPosition == QStyleOptionViewItem.Left:
-            w = self.calculate_size(default_size.width(), w_expand)
-            h = self.calculate_size(default_size.height(), h_expand)
+            w = self.calculate_size(item_size.width(), decoration_w_or_ratio)
+            h = self.calculate_size(item_size.height(), decoration_h_or_ratio)
         elif option.decorationPosition == QStyleOptionViewItem.Top:
-            w = self.calculate_size(default_size.width(), w_expand)
-            h = self.calculate_size(default_size.height(), h_expand)
+            w = self.calculate_size(item_size.width(), decoration_w_or_ratio)
+            h = self.calculate_size(item_size.height(), decoration_h_or_ratio)
         return QSize(w, h)
 
     def sizeHint(self, option: QStyleOptionViewItem, index: QtCore.QModelIndex) -> QtCore.QSize:
         # print("sizeHint() option.rect:", option.rect)
-        size = super().sizeHint(option, index)
+        item_size = super().sizeHint(option, index)
         # w, h = self.calculate_item_size(size, option, 1)
-        w, h = index.data(SlideListModel.DecorationSizeOrRatioRole)
-        decoration_size = QSize(w, h)
-        custom_decoration_size = self.calculate_custom_decoration_size(size, option, decoration_size)
+        item_new_w, item_new_h = index.data(SlideListModel.DecorationSizeOrRatioRole)
+        custom_decoration_size = QSize(item_new_w, item_new_h)
 
         if option.decorationPosition == QStyleOptionViewItem.Left:
-            w = size.width()
-            h = custom_decoration_size.height()
+            item_new_w = item_size.width()
+            item_new_h = custom_decoration_size.height()
         elif option.decorationPosition == QStyleOptionViewItem.Top:
-            w = custom_decoration_size.width()
-            # h = size.height() + custom_decoration_size.height()
-            h = custom_decoration_size.height() + 4
-        qsize = QSize(w, h)
-        w, h = qsize.width(), qsize.height()
-        # print("======sizeHint=====")
-        # print("option.rect: ", option.rect)
-        # print("new size: ", w, h)
-        # print("====================")
+            item_new_w = custom_decoration_size.width()
+            item_new_h = custom_decoration_size.height()
+        qsize = QSize(item_new_w, item_new_h)
         return qsize
 
     def paint(self, painter: QtGui.QPainter, option: QStyleOptionViewItem, index: QtCore.QModelIndex) -> None:
         item_size = option.rect.size()
-        decoration_size: QSize = index.data(SlideListModel.DecorationSizeOrRatioRole)
-        custom_decoration_size = self.calculate_custom_decoration_size(item_size, option, QSize(*decoration_size))
+        custom_decoration_w, custom_decoration_h = index.data(SlideListModel.DecorationSizeOrRatioRole)
         if option.decorationPosition == QStyleOptionViewItem.Left:
-            text_x, text_y = custom_decoration_size.width() + 4, 0
-            text_width = item_size.width() - custom_decoration_size.width() - 4
-            text_height = custom_decoration_size.height()
+            text_x, text_y = custom_decoration_w + self.icon_and_text_spacing, 0
+            text_width = item_size.width() - custom_decoration_w - self.icon_and_text_spacing
+            text_height = custom_decoration_h
         elif option.decorationPosition == QStyleOptionViewItem.Top:
             text_size = super().sizeHint(option, index)
-            custom_decoration_size.setHeight(custom_decoration_size.height() - text_size.height())
-            text_x, text_y = 0, custom_decoration_size.height() + 4
-            text_width = custom_decoration_size.width()
-            text_height = item_size.height() - custom_decoration_size.height() - 4
+            custom_decoration_h = custom_decoration_h - text_size.height()
+            text_x, text_y = 0, custom_decoration_h + self.icon_and_text_spacing
+            text_width = custom_decoration_w
+            text_height = item_size.height() - custom_decoration_h - self.icon_and_text_spacing
 
         slide_view_params: SlideViewParams = index.data(SlideListModel.SlideViewParamsRole)
         scene_rect = QRectF(*slide_view_params.level_rect)
-        img_key = "{}_{}".format(custom_decoration_size, slide_view_params.cache_key())
+        img_key = "{}_{}_{}".format(custom_decoration_w, custom_decoration_h, slide_view_params.cache_key())
         icon_pixmap = QPixmapCache.find(img_key)
         if icon_pixmap is None:
             # print("read", img_key)
@@ -87,7 +80,7 @@ class SlideViewerDelegate(QStyledItemDelegate):
             slide_graphics.update_visible_level(slide_view_params.level)
             slide_helper = SlideHelper(slide_view_params.slide_path)
             scene.setSceneRect(slide_helper.get_rect_for_level(slide_view_params.level))
-            image = build_screenshot_image(scene, custom_decoration_size, scene_rect)
+            image = build_screenshot_image(scene, QSize(custom_decoration_w, custom_decoration_h), scene_rect)
             icon_pixmap = QtGui.QPixmap.fromImage(image)
             QPixmapCache.insert(img_key, icon_pixmap)
 

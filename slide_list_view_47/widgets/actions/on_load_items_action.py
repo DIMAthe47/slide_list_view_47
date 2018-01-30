@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QAction, QFileDialog, QMenu, QMenuBar
 
-from slide_list_view_47.model.role_funcs import filepath_to_slideviewparams
+from slide_list_view_47.model.role_funcs import slidepath_to_slideviewparams
 
 
 class OnLoadItemsAction(QAction):
@@ -12,7 +12,7 @@ class OnLoadItemsAction(QAction):
         self.triggered.connect(self.on_load_action)
         self.list_model = None
         self.parent = parent
-        self.media_object_builder = filepath_to_slideviewparams
+        self.media_object_builder = slidepath_to_slideviewparams
 
     def set_list_model(self, list_model):
         self.list_model = list_model

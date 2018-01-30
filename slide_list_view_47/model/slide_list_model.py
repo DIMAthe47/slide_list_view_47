@@ -5,7 +5,7 @@ from PyQt5.QtCore import QAbstractListModel, QModelIndex, Qt, QVariant, QSize
 from PyQt5.QtGui import QPixmap
 
 from slide_list_view_47.model.role_funcs import item_func, decoration_size_hint_func, \
-    slideviewparams_to_str, item_setter
+    slideviewparams_to_str
 from slide_viewer_47.common.slide_view_params import SlideViewParams
 
 
@@ -15,29 +15,24 @@ class SlideListModel(QAbstractListModel):
     SlideViewParamsRole = Qt.UserRole + 2
 
     def __init__(self, items=[],
-                 display_func: Callable[[Any], str] = slideviewparams_to_str,
-                 decoration_func: Callable[[Any, QSize], QPixmap] = None,
-                 tooltip_func: Callable[[Any], str] = None,
-                 size_hint_func: Callable[[Any], QSize] = None,
-                 slide_view_params_func: Callable[[Any], SlideViewParams] = item_func,
-                 # slide_view_params_getter: Callable[[Any], SlideViewParams] = item_func,
-                 slide_view_params_setter: Callable[[SlideViewParams], None] = item_setter,
-                 decoration_size_hint_func: Callable[[Any, ], Tuple[Number, Number]] = decoration_size_hint_func):
-        # assuming by default item is of type SlideViewParams
+                 item_to_str: Callable[[Any], str] = slideviewparams_to_str,
+                 item_to_pixmap: Callable[[Any, QSize], QPixmap] = None,
+                 item_to_tooltiptext: Callable[[Any], str] = None,
+                 item_to_size: Callable[[Any], QSize] = None,
+                 item_to_slideviewparams: Callable[[Any], SlideViewParams] = item_func,
+                 item_to_decorationsize: Callable[[Any, ], Tuple[Number, Number]] = decoration_size_hint_func):
         super().__init__()
         self.items = items
-        # self.slide_view_params_setter = slide_view_params_setter
-        # self.slide_view_params_getter = slide_view_params_setter
 
         self.role_func = {
-            Qt.SizeHintRole: size_hint_func,
-            Qt.DisplayRole: display_func,
+            Qt.SizeHintRole: item_to_size,
+            Qt.DisplayRole: item_to_str,
             Qt.EditRole: None,
-            Qt.ToolTipRole: tooltip_func,
-            Qt.DecorationRole: decoration_func,
+            Qt.ToolTipRole: item_to_tooltiptext,
+            Qt.DecorationRole: item_to_pixmap,
             SlideListModel.ItemRole: item_func,
-            SlideListModel.DecorationSizeOrRatioRole: decoration_size_hint_func,
-            SlideListModel.SlideViewParamsRole: slide_view_params_func
+            SlideListModel.DecorationSizeOrRatioRole: item_to_decorationsize,
+            SlideListModel.SlideViewParamsRole: item_to_slideviewparams
         }
 
     def text_mode(self, item_to_str: Callable[[Any], str]):
@@ -46,17 +41,11 @@ class SlideListModel(QAbstractListModel):
         self.update_role_func(SlideListModel.SlideViewParamsRole, None)
         self.update_role_func(Qt.EditRole, None)
 
-
     def decoration_mode(self, item_to_str: Callable[[Any], str], item_to_pixmap: Callable[[Any], QPixmap]):
         self.update_role_func(Qt.DisplayRole, item_to_str)
         self.update_role_func(Qt.DecorationRole, item_to_pixmap)
         self.update_role_func(SlideListModel.SlideViewParamsRole, None)
         self.update_role_func(Qt.EditRole, None)
-
-    # def slideviewparams_mode(self, item_to_str: Callable[[Any], str],
-    #                          slideviewparams_getter: Callable[[Any], SlideViewParams],
-    #                          slideviewparams_setter: Callable[[QModelIndex, ],]):
-    #     pass
 
     def slideviewparams_mode(self, item_to_str: Callable[[Any], str],
                              item_to_slideviewparams: Callable[[Any], SlideViewParams]):
@@ -66,8 +55,6 @@ class SlideListModel(QAbstractListModel):
         self.update_role_func(Qt.EditRole, item_to_slideviewparams)
 
     def update_role_func(self, role, func):
-        # if role == SlideListModel.SlideViewParamsRole:
-        #     self.role_func[Qt.EditRole] = func
         self.role_func[role] = func
 
     def rowCount(self, parent=QModelIndex()):
