@@ -1,11 +1,14 @@
-from PyQt5.QtWidgets import QAction, QMessageBox
+from PyQt5.QtWidgets import QAction, QMessageBox, QMenu, QMenuBar
 
 from slide_list_view_47.model.slide_list_model import SlideListModel
 
 
 class OnGetSelectedItemsDataAction(QAction):
-    def __init__(self, parent, title="get_selected_items"):
+    def __init__(self, title, parent):
         super().__init__(title, parent)
+        if isinstance(parent, QMenu) or isinstance(parent, QMenuBar):
+            self.window = parent.parent()
+            parent.addAction(self)
         self.triggered.connect(self.on_get_data_action)
         self.list_model = None
         self.data_consumer = default_data_consumer

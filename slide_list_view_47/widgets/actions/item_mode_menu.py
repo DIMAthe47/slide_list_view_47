@@ -13,8 +13,8 @@ from slide_list_view_47.widgets.slide_viewer_delegate import SlideViewerDelegate
 from slide_viewer_47.common.slide_view_params import SlideViewParams
 
 
-class OnChangeModeMenu(QMenu):
-    def __init__(self, parent, title="mode"):
+class ItemModeMenu(QMenu):
+    def __init__(self, title, parent):
         super().__init__(title, parent)
         self.window = None
         if isinstance(parent, QMenu):
@@ -43,12 +43,9 @@ class OnChangeModeMenu(QMenu):
         self.addAction(self.decoration_mode_action)
         self.addAction(self.delegate_mode_action)
 
-
     def set_slide_list_widget(self, slide_list_widget: SlideListWidget):
         self.slide_list_widget = slide_list_widget
-
-    # def set_decoration_func(self, decoration_func: Callable[[SlideViewParams, QSize], QPixmap]):
-    #     self.decoration_func = decoration_func
+        self.delegate_mode_action.trigger()
 
     def on_text_mode_action(self):
         # self.change_mode(QStyledItemDelegate(self), None, None)

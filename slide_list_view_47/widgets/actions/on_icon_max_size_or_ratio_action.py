@@ -8,7 +8,7 @@ from slide_list_view_47.widgets.slide_list_widget import SlideListWidget
 
 
 class OnIconMaxSizeOrRatioAction(QAction):
-    def __init__(self, slide_list_widget, parent, title="icon_max_size_or_ratio"):
+    def __init__(self, title, parent, slide_list_widget):
         super().__init__(title, parent)
         self.window = None
         if isinstance(parent, QMenu):

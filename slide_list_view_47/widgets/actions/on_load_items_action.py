@@ -1,11 +1,14 @@
-from PyQt5.QtWidgets import QAction, QFileDialog
+from PyQt5.QtWidgets import QAction, QFileDialog, QMenu, QMenuBar
 
 from slide_list_view_47.model.role_funcs import filepath_to_slideviewparams
 
 
 class OnLoadItemsAction(QAction):
-    def __init__(self, title="load", parent=None):
+    def __init__(self, title, parent=None):
         super().__init__(title, parent)
+        if isinstance(parent, QMenu) or isinstance(parent, QMenuBar):
+            self.window = parent.parent()
+            parent.addAction(self)
         self.triggered.connect(self.on_load_action)
         self.list_model = None
         self.parent = parent
