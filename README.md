@@ -11,7 +11,7 @@ Screenshot of slide list widget:
 ### Features:
 - fixed size icon or icon with proportion of view size
 - simple mode (icons are thumbnails of slide image)
-- delegate mode (in-place slide exploring using SlideViewer)
+- delegate mode (in-place slide exploring using SlideViewer) (double-click an item in list)
 ![screenshot](/delegate_mode_screen.png)
 
 
