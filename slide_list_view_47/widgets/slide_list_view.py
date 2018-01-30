@@ -11,10 +11,14 @@ class SlideListView(QListView):
         self.setAlternatingRowColors(True)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.setViewMode(QtWidgets.QListView.ListMode)
-        self.setSpacing(2)
+        self.setSpacing(4)
         self.setUniformItemSizes(True)
         self.setWordWrap(True)
 
     def wheelEvent(self, e: QtGui.QWheelEvent) -> None:
         self.wheelEventSignal.emit(e)
         super().wheelEvent(e)
+
+    def resizeEvent(self, e: QtGui.QResizeEvent) -> None:
+        super().resizeEvent(e)
+        self.model().layoutChanged.emit()

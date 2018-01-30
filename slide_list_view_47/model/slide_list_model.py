@@ -20,12 +20,14 @@ class SlideListModel(QAbstractListModel):
                  tooltip_func: Callable[[Any], str] = None,
                  size_hint_func: Callable[[Any], QSize] = None,
                  slide_view_params_func: Callable[[Any], SlideViewParams] = item_func,
-                 slide_view_params_setter: Callable[[SlideViewParams],None] = item_setter,
+                 # slide_view_params_getter: Callable[[Any], SlideViewParams] = item_func,
+                 slide_view_params_setter: Callable[[SlideViewParams], None] = item_setter,
                  decoration_size_hint_func: Callable[[Any, ], Tuple[Number, Number]] = decoration_size_hint_func):
         # assuming by default item is of type SlideViewParams
         super().__init__()
         self.items = items
-        self.slide_view_params_setter = slide_view_params_setter
+        # self.slide_view_params_setter = slide_view_params_setter
+        # self.slide_view_params_getter = slide_view_params_setter
 
         self.role_func = {
             Qt.SizeHintRole: size_hint_func,
@@ -38,9 +40,34 @@ class SlideListModel(QAbstractListModel):
             SlideListModel.SlideViewParamsRole: slide_view_params_func
         }
 
+    def text_mode(self, item_to_str: Callable[[Any], str]):
+        self.update_role_func(Qt.DisplayRole, item_to_str)
+        self.update_role_func(Qt.DecorationRole, None)
+        self.update_role_func(SlideListModel.SlideViewParamsRole, None)
+        self.update_role_func(Qt.EditRole, None)
+
+
+    def decoration_mode(self, item_to_str: Callable[[Any], str], item_to_pixmap: Callable[[Any], QPixmap]):
+        self.update_role_func(Qt.DisplayRole, item_to_str)
+        self.update_role_func(Qt.DecorationRole, item_to_pixmap)
+        self.update_role_func(SlideListModel.SlideViewParamsRole, None)
+        self.update_role_func(Qt.EditRole, None)
+
+    # def slideviewparams_mode(self, item_to_str: Callable[[Any], str],
+    #                          slideviewparams_getter: Callable[[Any], SlideViewParams],
+    #                          slideviewparams_setter: Callable[[QModelIndex, ],]):
+    #     pass
+
+    def slideviewparams_mode(self, item_to_str: Callable[[Any], str],
+                             item_to_slideviewparams: Callable[[Any], SlideViewParams]):
+        self.update_role_func(Qt.DisplayRole, item_to_str)
+        self.update_role_func(Qt.DecorationRole, None)
+        self.update_role_func(SlideListModel.SlideViewParamsRole, item_to_slideviewparams)
+        self.update_role_func(Qt.EditRole, item_to_slideviewparams)
+
     def update_role_func(self, role, func):
-        if role == SlideListModel.SlideViewParamsRole:
-            self.role_func[Qt.EditRole] = func
+        # if role == SlideListModel.SlideViewParamsRole:
+        #     self.role_func[Qt.EditRole] = func
         self.role_func[role] = func
 
     def rowCount(self, parent=QModelIndex()):
@@ -77,7 +104,9 @@ class SlideListModel(QAbstractListModel):
     def setData(self, index: QModelIndex, value: Any, role=Qt.DisplayRole) -> bool:
         item = self.items[index.row()]
         if role == Qt.EditRole:
-            self.slide_view_params_setter(self.items, index, value)
+            slide_view_params = self.data(index, SlideListModel.SlideViewParamsRole).value()
+            slide_view_params.__dict__.update(value.__dict__)
+            # self.slide_view_params_setter(self.items, index, value)
             # self.setData(index,value, SlideListModel.SlideViewParamsRole)
             # self.items[index.row()] = value
             self.dataChanged.emit(index, index)

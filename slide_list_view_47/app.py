@@ -22,12 +22,12 @@ def main():
     QPixmapCache.setCacheLimit(cache_size_in_kb)
 
     # dirpath = r'C:\Users\DIMA\Google Диск\Pictures\Mountains'
-    # dirpath = r'C:\Users\DIMA\Downloads\svs'
-    # filepathes = [os.path.join(dirpath, filename) for filename in os.listdir(dirpath)]
-    # items = [filepath_to_slideviewparams(filepath) for filepath in filepathes]
-    # win.slide_list_widget.list_model.update_items(items)
+    dirpath = r'C:\Users\DIMA\Downloads\svs'
+    filepathes = [os.path.join(dirpath, filename) for filename in os.listdir(dirpath)]
+    items = [filepath_to_slideviewparams(filepath) for filepath in filepathes]
+    win.slide_list_widget.list_model.update_items(items)
 
-    win.delegate_mode_action.trigger()
+    # win.delegate_mode_action.trigger()
 
     win.show()
     sys.exit(app.exec_())

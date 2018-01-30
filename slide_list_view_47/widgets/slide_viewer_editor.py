@@ -1,5 +1,6 @@
 import collections
 import copy
+from PyQt5 import QtGui
 
 from PyQt5.QtCore import QRectF, pyqtProperty
 from PyQt5.QtWidgets import QWidget, QVBoxLayout

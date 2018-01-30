@@ -42,12 +42,14 @@ class SlideViewerDelegate(QStyledItemDelegate):
         w, h = index.data(SlideListModel.DecorationSizeOrRatioRole)
         decoration_size = QSize(w, h)
         custom_decoration_size = self.calculate_custom_decoration_size(size, option, decoration_size)
+
         if option.decorationPosition == QStyleOptionViewItem.Left:
             w = size.width()
             h = custom_decoration_size.height()
         elif option.decorationPosition == QStyleOptionViewItem.Top:
             w = custom_decoration_size.width()
-            h = size.height() + custom_decoration_size.height()
+            # h = size.height() + custom_decoration_size.height()
+            h = custom_decoration_size.height() + 4
         qsize = QSize(w, h)
         w, h = qsize.width(), qsize.height()
         # print("======sizeHint=====")
@@ -57,23 +59,23 @@ class SlideViewerDelegate(QStyledItemDelegate):
         return qsize
 
     def paint(self, painter: QtGui.QPainter, option: QStyleOptionViewItem, index: QtCore.QModelIndex) -> None:
-        default_size = option.rect.size()
-        decoration_size = index.data(SlideListModel.DecorationSizeOrRatioRole)
-        custom_decoration_size = self.calculate_custom_decoration_size(default_size, option, QSize(*decoration_size))
+        item_size = option.rect.size()
+        decoration_size: QSize = index.data(SlideListModel.DecorationSizeOrRatioRole)
+        custom_decoration_size = self.calculate_custom_decoration_size(item_size, option, QSize(*decoration_size))
         if option.decorationPosition == QStyleOptionViewItem.Left:
-            text_x, text_y = custom_decoration_size.width(), 0
-            text_width = default_size.width() - custom_decoration_size.width()
+            text_x, text_y = custom_decoration_size.width() + 4, 0
+            text_width = item_size.width() - custom_decoration_size.width() - 4
             text_height = custom_decoration_size.height()
         elif option.decorationPosition == QStyleOptionViewItem.Top:
-            text_x, text_y = 0, custom_decoration_size.height()
+            text_size = super().sizeHint(option, index)
+            custom_decoration_size.setHeight(custom_decoration_size.height() - text_size.height())
+            text_x, text_y = 0, custom_decoration_size.height() + 4
             text_width = custom_decoration_size.width()
-            text_height = default_size.height() - custom_decoration_size.height()
+            text_height = item_size.height() - custom_decoration_size.height() - 4
 
         slide_view_params: SlideViewParams = index.data(SlideListModel.SlideViewParamsRole)
         scene_rect = QRectF(*slide_view_params.level_rect)
-        img_key = "{}_{}_{}_{}_{}_{}_{}".format(slide_view_params.slide_path, custom_decoration_size, slide_view_params.level,
-                                       slide_view_params.level_rect, id(slide_view_params.grid_rects_0_level),
-                                       id(slide_view_params.grid_colors_0_level), slide_view_params.grid_visible)
+        img_key = "{}_{}".format(custom_decoration_size, slide_view_params.cache_key())
         icon_pixmap = QPixmapCache.find(img_key)
         if icon_pixmap is None:
             # print("read", img_key)
@@ -91,8 +93,9 @@ class SlideViewerDelegate(QStyledItemDelegate):
 
         painter.fillRect(option.rect, painter.background())
         painter.drawPixmap(option.rect.topLeft(), icon_pixmap)
-        # painter.drawRect(option.rect.topLeft().x(), option.rect.topLeft().y(), icon_pixmap.width(),
-        #                  icon_pixmap.height())
+        # painter.drawRect(option.rect)
+        painter.drawRect(option.rect.topLeft().x(), option.rect.topLeft().y(), icon_pixmap.width(),
+                         icon_pixmap.height())
 
         option.rect = option.rect.translated(text_x, text_y)
         option.rect.setSize(QSize(text_width, text_height))
@@ -106,10 +109,10 @@ class SlideViewerDelegate(QStyledItemDelegate):
         # print(option.decorationPosition)
         slide_viewer_editor = SlideViewerEditor(parent, option.decorationPosition == QStyleOptionViewItem.Top)
         slide_viewer_editor.setGeometry(option.rect)
-        slide_viewer_editor.setContentsMargins(0, 0, 0, 0)
         return slide_viewer_editor
 
-    def updateEditorGeometry(self, editor: QWidget, option: QStyleOptionViewItem, index: QtCore.QModelIndex) -> None:
-        if editor.slide_viewer.parent() and editor.slide_viewer.parent().layout():
-            editor.slide_viewer.parent().layout().setContentsMargins(0, 0, 0, 0)
+    def updateEditorGeometry(self, editor: SlideViewerEditor, option: QStyleOptionViewItem,
+                             index: QtCore.QModelIndex) -> None:
+        editor.layout().setContentsMargins(0, 0, 0, 0)
+        editor.slide_viewer.layout().setContentsMargins(0, 0, 0, 0)
         super().updateEditorGeometry(editor, option, index)
