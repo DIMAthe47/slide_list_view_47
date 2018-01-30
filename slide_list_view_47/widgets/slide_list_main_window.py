@@ -1,18 +1,9 @@
-from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtWidgets import QMainWindow, QActionGroup, QGroupBox, QFormLayout, QHBoxLayout, \
-    QLineEdit, QDialogButtonBox, QVBoxLayout, QDialog, QListView, QAction, QStyledItemDelegate
+from PyQt5.QtWidgets import QMainWindow
 
-from slide_list_view_47.model.slide_list_model import SlideListModel
-from slide_list_view_47.model.role_funcs import item_func, slideviewparams_to_pixmap, \
-    decoration_size_func_factory
-from slide_list_view_47.widgets.actions.list_view_mode_menu import ListViewModeMenu
-from slide_list_view_47.widgets.actions.item_mode_menu import ItemModeMenu
-from slide_list_view_47.widgets.actions.on_change_view_mode_action import OnChangeViewModeAction
-from slide_list_view_47.widgets.actions.on_icon_max_size_or_ratio_action import OnIconMaxSizeOrRatioAction
+from slide_list_view_47.widgets.actions.list_view_menu import ListViewMenu
 from slide_list_view_47.widgets.actions.on_load_items_action import OnLoadItemsAction
 from slide_list_view_47.widgets.actions.on_get_selected_items_action import OnGetSelectedItemsDataAction
 from slide_list_view_47.widgets.slide_list_widget import SlideListWidget
-from slide_list_view_47.widgets.slide_viewer_delegate import SlideViewerDelegate
 
 
 class SlideListMainWindow(QMainWindow):
@@ -34,5 +25,4 @@ class SlideListMainWindow(QMainWindow):
         get_slide_list_data_action = OnGetSelectedItemsDataAction("get_selected_items", menu_bar)
         get_slide_list_data_action.set_list_view(self.slide_list_widget.list_view)
 
-        list_view_menu = ListViewModeMenu("list_view", menu_bar)
-        list_view_menu.set_slide_list_widget(self.slide_list_widget)
+        list_view_menu = ListViewMenu("list_view", menu_bar, self.slide_list_widget)

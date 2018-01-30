@@ -33,6 +33,14 @@ def slidepath_to_pximap(slidepath, icon_size: QSize):
     return icon_pixmap
 
 
+def item_to_pixmap_through_slideviewparams_factory(item_to_slideviewparams):
+    def item_to_pixmap(item, icon_size: QSize):
+        slide_view_params = item_to_slideviewparams(item)
+        return slideviewparams_to_pixmap(slide_view_params, icon_size)
+
+    return item_to_pixmap
+
+
 def slideviewparams_to_pixmap(slide_view_params: SlideViewParams, icon_size: QSize):
     return slidepath_to_pximap(slide_view_params.slide_path, icon_size)
 

@@ -14,19 +14,21 @@ from slide_viewer_47.common.slide_view_params import SlideViewParams
 
 
 class ItemModeMenu(QMenu):
-    def __init__(self, title, parent):
+    def __init__(self, title, parent, slide_list_widget: SlideListWidget,
+                 item_to_str=slideviewparams_to_str, item_to_pixmap=slideviewparams_to_pixmap,
+                 item_to_slideviewparams=lambda x: x):
         super().__init__(title, parent)
         self.window = None
         if isinstance(parent, QMenu):
             self.window = parent.parent()
             parent.addMenu(self)
 
-        self.slide_list_widget: SlideListWidget = None
+        self.slide_list_widget: SlideListWidget = slide_list_widget
 
         # by default items are slideviewparams
-        self.item_to_pixmap = slideviewparams_to_pixmap
-        self.item_to_str = slideviewparams_to_str
-        self.item_to_slideviewparams = lambda x: x
+        self.item_to_pixmap = item_to_pixmap
+        self.item_to_str = item_to_str
+        self.item_to_slideviewparams = item_to_slideviewparams
 
         self.action_group = QActionGroup(self)
         self.text_mode_action = QAction("text", self.action_group)
@@ -43,9 +45,10 @@ class ItemModeMenu(QMenu):
         self.addAction(self.decoration_mode_action)
         self.addAction(self.delegate_mode_action)
 
-    def set_slide_list_widget(self, slide_list_widget: SlideListWidget):
-        self.slide_list_widget = slide_list_widget
-        self.delegate_mode_action.trigger()
+    def update_funcs(self, item_to_pixmap, item_to_str, item_to_slideviewparams):
+        self.item_to_pixmap = item_to_pixmap
+        self.item_to_str = item_to_str
+        self.item_to_slideviewparams = item_to_slideviewparams
 
     def on_text_mode_action(self):
         self.slide_list_widget.list_view.setItemDelegate(QStyledItemDelegate())
@@ -67,4 +70,3 @@ class ItemModeMenu(QMenu):
         list_model.beginResetModel()
         self.slide_list_widget.list_model.slideviewparams_mode(self.item_to_str, self.item_to_slideviewparams)
         list_model.endResetModel()
-
