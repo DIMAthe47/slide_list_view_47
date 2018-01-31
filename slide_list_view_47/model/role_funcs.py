@@ -68,11 +68,11 @@ def decoration_size_func_factory(view: QGraphicsView, width_or_ratio, height_or_
     def decoration_size_func(size_else_ratio=True):
         viewport_size = view.viewport().size()
         if isinstance(w, float):
-            icon_width = viewport_size.width() * w - view.spacing() * 2
+            icon_width = viewport_size.width() * w - view.spacing() * 2 - 4
         else:
             icon_width = w
         if isinstance(h, float):
-            icon_height = viewport_size.height() * h - view.spacing() * 2
+            icon_height = viewport_size.height() * h - view.spacing() * 2 - 4
         else:
             icon_height = h
 
