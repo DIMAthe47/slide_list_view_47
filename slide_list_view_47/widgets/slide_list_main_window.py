@@ -18,11 +18,8 @@ class SlideListMainWindow(QMainWindow):
         menu_bar = self.menuBar()
 
         load_action_menu = menu_bar.addMenu("load_actions")
-        self.load_action = OnLoadItemsAction("load", load_action_menu)
-        self.load_action.set_list_model(self.slide_list_widget.list_model)
-        menu_bar.addMenu(load_action_menu)
+        self.load_action = OnLoadItemsAction("load", load_action_menu, self.slide_list_widget.list_model)
 
-        get_slide_list_data_action = OnGetSelectedItemsDataAction("get_selected_items", menu_bar)
-        get_slide_list_data_action.set_list_view(self.slide_list_widget.list_view)
-
+        get_slide_list_data_action = OnGetSelectedItemsDataAction("get_selected_items", menu_bar,
+                                                                  self.slide_list_widget.list_view)
         list_view_menu = ListViewMenu("list_view", menu_bar, self.slide_list_widget)
