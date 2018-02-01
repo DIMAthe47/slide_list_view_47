@@ -11,12 +11,14 @@ class SlideViewerEditor(QWidget):
 
     @pyqtProperty(SlideViewParams, user=True)
     def slide_view_params(self) -> SlideViewParams:
-        slide_view_params = copy.deepcopy(self.slide_viewer.slide_view_params)
+        # slide_view_params = copy.deepcopy(self.slide_viewer.slide_view_params)
+        slide_view_params = self.slide_viewer.slide_view_params
         return slide_view_params
 
     @slide_view_params.setter
     def slide_tile(self, value: SlideViewParams):
-        self._slide_view_params = copy.deepcopy(value)
+        # self._slide_view_params = copy.deepcopy(value)
+        self._slide_view_params = value
         self.slide_viewer.load(self._slide_view_params)
 
     def __init__(self, parent: QWidget, viewer_top_else_left) -> None:
