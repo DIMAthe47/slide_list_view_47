@@ -22,4 +22,4 @@ class SlideListMainWindow(QMainWindow):
 
         get_slide_list_data_action = OnGetSelectedItemsDataAction("get_selected_items", menu_bar,
                                                                   self.slide_list_widget.list_view)
-        list_view_menu = ListViewMenu("list_view", menu_bar, self.slide_list_widget)
+        self.list_view_menu = ListViewMenu("list_view", menu_bar, self.slide_list_widget)

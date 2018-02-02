@@ -23,10 +23,12 @@ def main():
 
     # dirpath = r'C:\Users\DIMA\Google Диск\Pictures\Mountains'
     # dirpath = r'C:\Users\DIMA\Downloads\svs'
+    # dirpath = r'C:\Users\DIMA\PycharmProjects\slide_cbir_47\temp\slides\Aperio'
     # filepathes = [os.path.join(dirpath, filename) for filename in os.listdir(dirpath)]
-    # items = [slidepath_to_slideviewparams(filepath) for filepath in filepathes]
+    # items = [slidepath_to_slideviewparams(filepath) for filepath in filepathes[0:1]]
     # win.slide_list_widget.list_model.update_items(items)
 
+    win.list_view_menu.item_mode_menu.delegate_mode_action.trigger()
     win.show()
     sys.exit(app.exec_())
 
