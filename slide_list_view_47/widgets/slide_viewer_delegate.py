@@ -104,8 +104,8 @@ class SlideViewerDelegate(QStyledItemDelegate):
             # t4 = elapsed()
             # if t3 is None:
             #     t3 = 0
-            t5 = elapsed()
-            print("finally", t5 - t4)
+            # t5 = elapsed()
+            # print("finally", t5 - t4)
             super().paint(painter, option, index)
 
     def createEditor(self, parent: QWidget, option: QStyleOptionViewItem, index: QtCore.QModelIndex) -> QWidget:
